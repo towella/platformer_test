@@ -6,7 +6,5 @@ controller_map = {'square': 0, 'X': 1, 'circle': 2, 'triangle': 3, 'L1': 4, 'R1'
                   'options': 9, 'left_analog_press': 10, 'right_analog_press': 11, 'PS': 12, 'touchpad': 13,
                   'left_analog_x': 0,  'left_analog_y': 1}
 
-level_0 = {
-    'collideable': '../csvs/test_csvs_map.csv',
-    'player': '../csvs/test_csvs_player.csv',
-    'hazards': '../csvs/test_csvs_hazards.csv'}
+rooms = {'room_0': '../rooms/test_csvs.tmx',
+         'room_1': '../rooms/level_1.tmx'}

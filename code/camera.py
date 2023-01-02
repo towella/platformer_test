@@ -1,7 +1,6 @@
 import pygame
 
 class Camera():
-    # TODO should these be passed in or kept in camera as standard?? Or: variable=None, variable=40 ??
     def __init__(self, surface, player):
         self.player = player  # the target of the camera
         self.target = [self.player.rect.centerx, self.player.rect.centery]  # target position
@@ -26,7 +25,7 @@ class Camera():
         self.fall_offset_max = 100  # max offset from player on vertical when falling
         self.fall_offset_increment = 6  # increment target is moved by
 
-        self.look_up_down = 80
+        self.look_up_down = 100
 
         # -- screen dimensions --
         self.screen_width = surface.get_width()
@@ -39,6 +38,7 @@ class Camera():
 
     def get_input(self):
         keys = pygame.key.get_pressed()
+
         # -- camera look up and down--
         if self.player.on_ground:
             if keys[pygame.K_DOWN]:
@@ -46,13 +46,7 @@ class Camera():
             elif keys[pygame.K_UP]:
                 self.target[1] -= self.look_up_down
 
-    # TODO make work for any player placement
-    # bring the target directly into the center and return scroll
-    def focus_target(self):
-        self.target = [self.player.rect.centerx, self.player.rect.centery]
-        self.scroll_value = [-(self.screen_center_y - self.player.rect.centery),
-                             -(self.screen_center_x - self.player.rect.centerx)]
-        return self.scroll_value
+# -- camera --
 
     def update_target(self):
         # target[0] = x, target[1] = y
@@ -88,33 +82,39 @@ class Camera():
 
     # scrolls the world when the player hits certain points on the screen
     # dynamic camera tut, dafluffypotato:  https://www.youtube.com/watch?v=5q7tmIlXROg
-    def return_scroll(self):
+    def return_scroll(self, focus_target=False):
         self.update_target()
 
-        # -- decreases LERP_y gradually when falling and resets when hit ground --
-        if self.player.direction.y > 0 and not self.player.on_ground:
-            self.lerp_y -= self.fall_lerp_increment
-            if self.lerp_y < self.fall_lerp_max:
-                self.lerp_y = self.fall_lerp_max
+        # if camera is to follow normally, do normal stuff, otherwise, focus camera directly on target
+        if not focus_target:
+            # -- decreases LERP_y gradually when falling and resets when hit ground --
+            if self.player.direction.y > 0 and not self.player.on_ground:
+                self.lerp_y -= self.fall_lerp_increment
+                if self.lerp_y < self.fall_lerp_max:
+                    self.lerp_y = self.fall_lerp_max
+            else:
+                self.lerp_y = self.norm_lerp
+            #print('lerp_x', self.lerp_x)
+            #print('lerp_y', self.lerp_y)
+
+            # scroll_value[0] = y, scroll_value[1] = x
+
+            # scroll value cancels player movement with scrolling everything, including player (centerx - scroll_value)
+            # subtracts screen width//2 to place player in the center of the screen rather than left edge
+
+            # the division adds a fraction of the difference between the camera (scroll) and the player to the scroll,
+            # making the camera follow with lag and also settle gently as the  fraction gets smaller the closer the camera
+            # is to the player
+
+            # self.scroll_value[1] += (player.rect.centerx - self.scroll_value[1] - screen_width//2)/20   for platformer
+            # += was an issue causing odd motion (use for screen shake??)
+            # TODO smoother approach and settle when player is stopped?? Closer to target??
+            self.scroll_value[0] = (self.target[1] - self.scroll_value[0] - self.screen_center_y) / self.lerp_y
+            self.scroll_value[1] = (self.target[0] - self.scroll_value[1] - self.screen_center_x) / self.lerp_x
         else:
-            self.lerp_y = self.norm_lerp
-        #print('lerp_x', self.lerp_x)
-        #print('lerp_y', self.lerp_y)
-
-        # scroll_value[0] = y, scroll_value[1] = x
-
-        # scroll value cancels player movement with scrolling everything, including player (centerx - scroll_value)
-        # subtracts screen width//2 to place player in the center of the screen rather than left edge
-
-        # the division adds a fraction of the difference between the camera (scroll) and the player to the scroll,
-        # making the camera follow with lag and also settle gently as the  fraction gets smaller the closer the camera
-        # is to the player
-
-        # self.scroll_value[1] += (player.rect.centerx - self.scroll_value[1] - screen_width//2)/20   for platformer
-        # += was an issue causing odd motion (use for screen shake??)
-        # TODO smoother approach and settle when player is stopped?? Closer to target??
-        self.scroll_value[0] = (self.target[1] - self.scroll_value[0] - self.screen_center_y) / self.lerp_y
-        self.scroll_value[1] = (self.target[0] - self.scroll_value[1] - self.screen_center_x) / self.lerp_x
+            # focus camera on target.
+            self.scroll_value = [-(self.screen_center_y - self.player.rect.centery),
+                                 -(self.screen_center_x - self.player.rect.centerx)]
 
         return self.scroll_value
 
@@ -163,3 +163,8 @@ class Camera():
                     self.scroll_value[0] -= 1
                     tile_top += 1
                 break'''
+
+# -- HUD --
+
+    def hud_handler(self):
+        pass

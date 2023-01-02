@@ -21,10 +21,10 @@ class Tile(pygame.sprite.Sprite):
     def update(self, scroll_value):
         self.apply_scroll(scroll_value)
 
-    def draw(self, display):
-        # if the tile is within the screen with a buffer of 100px every direction, render tile
-        #if self.rect.right > 100 and self.rect.left < self.screen_width + 100 and self.rect.top > -100 and self.rect.bottom < self.screen_height + 100:
-        display.blit(self.image, self.rect)
+    def draw(self, screen, screen_rect):
+        # if the tile is within the screen, render tile
+        if self.rect.colliderect(screen_rect):
+            screen.blit(self.image, self.rect)
 
 
 # terrain tile type, inherits from main tile and can be assigned an image

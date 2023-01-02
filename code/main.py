@@ -1,8 +1,8 @@
 # screen resizing tut, dafluffypotato: https://www.youtube.com/watch?v=edJZOQwrMKw
 
 import pygame, sys
-from level import Level
-from game_data import level_0, controller_map, screen_width, screen_height
+from room import Room
+from game_data import rooms, controller_map, screen_width, screen_height
 
 # General setup
 pygame.mixer.pre_init(44100, 16, 2, 4096)
@@ -46,8 +46,8 @@ def main_menu():
 
 def game():
     click = False
-    pause = False
-    level = Level(level_0, screen, screen_rect, joysticks)
+    previous_room = 'room_0'
+    room = Room(rooms[previous_room], screen, screen_rect, joysticks, previous_room)
 
     running = True
     while running:
@@ -55,7 +55,7 @@ def game():
         # x and y mouse pos
         mx, my = pygame.mouse.get_pos()
 
-        # Event Checks (input)
+        # Event Checks -- Input --
         click = False
         for event in pygame.event.get():
 
@@ -69,8 +69,6 @@ def game():
                     pass
                 elif event.key == pygame.K_PERIOD:
                     pass
-                elif event.key == pygame.K_p:
-                    pause = not pause
                 elif event.key == pygame.K_COMMA or event.key == pygame.K_ESCAPE:
                     running = False
                     pygame.quit()
@@ -95,13 +93,17 @@ def game():
                 elif event.button == controller_map['options']:
                     pause = not pause
 
-        # Update
-        if not pause:
-            screen.fill((69, 105, 144))
-            level.run()
+        # -- Update --
+        screen.fill((69, 105, 144))
+        room.run()  # runs level processes
+        # if player has hit a room transition in the room, change the active room
+        room_transition = room.room_transitions()
+        if room_transition:
+            room = Room(rooms[room_transition], screen, screen_rect, joysticks, previous_room)
+            previous_room = room_transition  # updates previous room
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))
 
-        # update window
+        # -- Render --
         pygame.display.update()
         clock.tick(game_speed)
 

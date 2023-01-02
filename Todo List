@@ -1,36 +1,38 @@
 Todo List:
 
 -- Camera --
-o Look Up/Down w/ arrow keys, clean code and only allowed on the ground
+o camera code messy
 o walking horizontal offset
 o Camera starts positioned on player (more accurate focus)
 o Smooth camera ease into stopped player
 o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
 
-
 -- Player --
 o investigate player TODOs *******
 o ensure commenting is accurate and OK ****
 
 wall slide
-o prevent hold wall jumps
-o extend wall jump
-o wall jump offset horizontal issues
+o wall jump offset jerky and breaks collision detection :(
+o dash into wall on wall can be used to prevent slide infinitely
+o wall jump buffer??
+o wall jump takes prescendence over normal jump
 
 controls
-o more movement mechanics (double jump)
 o Inaccurate movement features (sticky walls, dash reset early?) **
 
 
 -- Level --
-* only general TODOs from previous project *
+o sRGB warning
+o kill level instance properly
+o clean spawn points
+o respawn player after hazard. Correct place??
 
 
 
 #### LARGE SCALE DIRECTION ####
-o tiled implementation
+IMPLEMENT DICTIONARIES for efficiency
+Implement chunk system
 
-o databases with python?
 o animation
 o paralax scrolling

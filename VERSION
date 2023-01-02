@@ -1,12 +1,16 @@
-VERSION 1 - PROTOTYPE:
+VERSION 2 - PROTOTYPE:
 
 Includes:
+- NO animation
+- NO controller input
+
 - pixel perfect display for pixel art (art pixels == to game pixels)
 - fullscreen capability without screen tearing
 - working collision detection
-- NO controller input
-- MINIMAL level design capability with tiled
-- NO animation/ graphics
+- improved but in progress level design capability with tiled (pytmx implementation)
+    - including pulling tile positioning and graphics from a tmx file without referencing additional image or csv files
+    - linkable level transition objects
+    - transition based spawn point objects
 
 - working but unfinished camera
 	- interpolated horizontal and vertical
@@ -15,17 +19,16 @@ Includes:
 	- manual up/down pan controls
 
 - working walk and gravity/terminal velocity
-
-- working variable height jump
-- working buffered jumping
-- working coyote time jump
-
+- simplified variable height jump
+- simplified buffered jumping
+- simplified coyote time jump
+- working double jump
 - working 2 directional dash with fixed direction
 - working buffered dashing
-
 - working glide
-
 - in progress wall climb
+
+- contact with hazards cause player respawn at latest respawn point
 
 
 Controls:
@@ -34,6 +37,7 @@ Controls:
 - W/Space: jump
     - (hold): higher jump
     - (on wall): wall jump *unfinished*
+    - (in air): double jump
 - S (in air): glide
 - Period: dash
 - UP arrow (on ground): pan camera up
@@ -44,4 +48,4 @@ Controls:
 
 Dev Tools:
 - X: switch fps from 60 to 20 and back
-- Z: (show)/Shift+Z (hide): display hitboxes, screen centre and camera target
+- Z: (show)/Shift+Z (hide): display hitboxes, screen centre, camera target, spawn points, room transitions
