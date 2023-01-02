@@ -1,7 +1,19 @@
-import pygame
+import pygame, os, sys
 from csv import reader
 from game_data import tile_size
-from os import walk
+
+
+# allows paths to be used for both normal running in PyCharm and as an .exe
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+        relative_path = relative_path[3:]  # slices path if using executable to absolute path. Otherwise use relative for PyCharm
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 
 # https://riptutorial.com/pygame/example/23788/transparency    info on alpha values in surfaces (opacity and clear pixels)
 
@@ -11,7 +23,7 @@ def import_folder(path, return_type):
     surface_list = []
     allowed_file_types = ['.png', '.jpg', '.jpeg', '.gif']
 
-    for folder_name, sub_folders, img_files in walk(path):
+    for folder_name, sub_folders, img_files in os.walk(path):
         img_files.sort()
         for image in img_files:
             for type in allowed_file_types:

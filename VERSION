@@ -1,22 +1,34 @@
-VERSION 2 - PROTOTYPE:
+VERSION 3 - PROTOTYPE:
+
+Versions:
+- Python: 3.7.9 (for controller input with pygame and ease of use w/ pyinstaller)
+- Pygame: 2.0.1 (for controller input to work)
+- PyInstaller: 5.1
+- PyTMX: 3.31.custom (to allow for access of class/type attribute of tiled objects)
+- Pip: 22.1.2
+
 
 Includes:
 - NO animation
-- NO controller input
 
+- NEW ability to create app with pyinstaller (changes to pytmx)
+- NEW controller input
 - pixel perfect display for pixel art (art pixels == to game pixels)
 - fullscreen capability without screen tearing
 - working collision detection
-- improved but in progress level design capability with tiled (pytmx implementation)
+- improved level design capability with tiled (CUSTOM pytmx implementation for use with pyinstaller)
     - including pulling tile positioning and graphics from a tmx file without referencing additional image or csv files
     - linkable level transition objects
-    - transition based spawn point objects
+    - transition based spawn point objects that tell the player what direction to face
+    - trigger/spawn system for within room spawn points
+    - live updates on rooms (move between transitions to update)
 
 - working but unfinished camera
 	- interpolated horizontal and vertical
 	- target system for offsetting
 	- falling and horizontal offsetting with target
 	- manual up/down pan controls
+	- NEW unfinished camera boundaries
 
 - working walk and gravity/terminal velocity
 - simplified variable height jump
@@ -32,20 +44,21 @@ Includes:
 
 
 Controls:
-- A: left
-- D: right
-- W/Space: jump
+- A/Left joystick left/D-pad left: left
+- D/left joystick right/D-pad right: right
+- W/Space/X button: jump
     - (hold): higher jump
     - (on wall): wall jump *unfinished*
     - (in air): double jump
-- S (in air): glide
-- Period: dash
-- UP arrow (on ground): pan camera up
-- DOWN arrow (on ground): pan camera down
-- P: pause
-- Comma: Instant quit
+- S/D-pad down/L1 (in air): glide
+- Period/R2: dash
+- UP arrow/left joystick up (on ground): pan camera up
+- DOWN arrow/left joystick down (on ground): pan camera down
+- P/options: pause
+- Comma/press left joystick: Instant quit
 
 
 Dev Tools:
 - X: switch fps from 60 to 20 and back
-- Z: (show)/Shift+Z (hide): display hitboxes, screen centre, camera target, spawn points, room transitions
+- Z/share: (show)/ Shift+Z/share+X button (hide): display hitboxes, screen centre, camera target, spawn points, room transitions
+- R/press right joystick: instant respawn at last spawn point

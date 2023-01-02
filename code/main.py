@@ -1,3 +1,7 @@
+# pyinstaller code/main.py code/camera.py code/game_data.py code/player.py code/room.py code/spawn.py code/support.py code/tiles.py code/trigger.py --onefile --noconsole
+
+
+
 # screen resizing tut, dafluffypotato: https://www.youtube.com/watch?v=edJZOQwrMKw
 
 import pygame, sys
@@ -24,7 +28,8 @@ scaling_factor = 2.7  # how much the screen is scaled up before bliting on displ
 # vsync only works with scaled flag. Scaled flag will only work in combination with certain other flags.
 # although resizeable flag is present, window can not be resized, only fullscreened with vsync still on
 # vsync prevents screen tearing (multiple frames displayed at the same time creating a shuddering wave)
-window = pygame.display.set_mode((int(screen_width * scaling_factor), int(screen_height * scaling_factor)), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.SCALED, vsync=True)
+# screen dimensions are cast to int to prevent float values being passed (-1 is specific to this game getting screen multiple of 16)
+window = pygame.display.set_mode((int(screen_width * scaling_factor) - 1, int(screen_height * scaling_factor)), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.SCALED, vsync=True)
 
 # all pixel values in game logic should be based on the screen!!!! NO .display FUNCTIONS!!!!!
 screen = pygame.Surface((screen_width, screen_height))  # the display surface, re-scaled and blit to the window
@@ -35,7 +40,7 @@ pygame.display.set_caption('Platformer')
 # controller
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
-print(len(joysticks))
+print(f"joy {len(joysticks)}")
 for joystick in joysticks:
     joystick.init()
 
@@ -90,8 +95,6 @@ def game():
                     running = False
                     pygame.quit()
                     sys.exit()
-                elif event.button == controller_map['options']:
-                    pause = not pause
 
         # -- Update --
         screen.fill((69, 105, 144))
@@ -101,7 +104,7 @@ def game():
         if room_transition:
             room = Room(rooms[room_transition], screen, screen_rect, joysticks, previous_room)
             previous_room = room_transition  # updates previous room
-        window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))
+        window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 
         # -- Render --
         pygame.display.update()

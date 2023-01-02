@@ -3,7 +3,7 @@ from game_data import tile_size, controller_map
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, controllers):
+    def __init__(self, spawn, surface, controllers):
         super().__init__()
         self.surface = surface
         self.controllers = controllers
@@ -11,8 +11,13 @@ class Player(pygame.sprite.Sprite):
         # -- player setup --
         self.image = pygame.Surface((tile_size, tile_size * 1.5))
         self.image.fill((255, 88, 98))
-        self.rect = self.image.get_rect(topleft=(pos[0], pos[1]))  # used for movement and keeping track of image
-        self.hitbox = self.image.get_rect(topleft=(pos[0], pos[1]))  # used for collisions
+        self.rect = self.image.get_rect(topleft=(spawn.x, spawn.y))  # used for movement and keeping track of image
+        self.hitbox = self.image.get_rect(topleft=(spawn.x, spawn.y))  # used for collisions
+        if spawn.player_facing == 'right':
+            self.facing_right = 1
+        else:
+            self.facing_right = -1
+        self.respawn = False
 
         # -- player movement --
         self.direction = pygame.math.Vector2(0, 0)  # allows cleaner movement by storing both x and y direction
@@ -21,7 +26,6 @@ class Player(pygame.sprite.Sprite):
 
         # - walk -
         self.speed_x = 2.5
-        self.facing_right = 1
         self.right_pressed = False
         self.left_pressed = False
 
@@ -100,14 +104,14 @@ class Player(pygame.sprite.Sprite):
 
         #### horizontal movement ####
         # -- walk --
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or self.get_controller_input('right'):
             self.direction.x = self.speed_x
             self.facing_right = 1
             self.right_pressed = True
         else:
             self.right_pressed = False
 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or self.get_controller_input('left'):
             self.direction.x = -self.speed_x
             self.facing_right = -1
             self.left_pressed = True
@@ -116,14 +120,15 @@ class Player(pygame.sprite.Sprite):
 
         # -- dash --
         # if wanting to dash and not holding the button
-        if keys[pygame.K_PERIOD] and not self.dash_pressed:
+        if (keys[pygame.K_PERIOD] or self.get_controller_input('dash')) and not self.dash_pressed:
             # if only just started dashing, dashing is true and dash direction is set. Prevents changing dash dir during dash
             if not self.dashing:
                 self.dashing = True
                 self.dash_dir_right = self.facing_right
             self.dashbuff_timer = 0  # set to 0 ready for next buffdash
             self.dash_pressed = True
-        elif not keys[pygame.K_PERIOD]:
+        # neccessary to prevent repeated dashes on button hold
+        elif not keys[pygame.K_PERIOD] and not self.get_controller_input('dash'):
             self.dash_pressed = False
 
         self.dash()
@@ -131,7 +136,7 @@ class Player(pygame.sprite.Sprite):
         #### vertical movement ####
         # -- jump --
         # input
-        if keys[pygame.K_w] or keys[pygame.K_SPACE]:
+        if keys[pygame.K_w] or keys[pygame.K_SPACE] or self.get_controller_input('jump'):
             # if jump wasnt previously pressed, allow jump (also dependent on other variable in function)
             # set jump_pressed to true
             # prevents continuous held jumps
@@ -139,9 +144,8 @@ class Player(pygame.sprite.Sprite):
                 self.jump_timer = 0  # set to 0 ready for next buffjump, used to prove not holding button
                 self.jump_hold_timer = 0
             self.jump_pressed = True
-
-        # Checks jump key up
-        elif not keys[pygame.K_w] and not keys[pygame.K_SPACE]:
+        # jump keys up
+        else:
             self.jumping = False
             self.jump_hold_timer = self.jump_max
             self.jump_pressed = False
@@ -151,14 +155,13 @@ class Player(pygame.sprite.Sprite):
         # -- glide/crouch --
         # if button pressed and last frame not pressed, allow glide (prevents holding glide through jumps) can hold
         # through buffer jumps for speedrunning
-        if keys[pygame.K_s]:
+        if keys[pygame.K_s] or self.get_controller_input('glide'):
             if not self.glide_pressed:
                 self.gliding = True
             self.glide_pressed = True
             # TODO crouch here
-
-        # ends glide if button up
-        elif not keys[pygame.K_s]:
+        # ends glide if buttons up
+        else:
             # if glide was pressed and now unpressed and was gliding but now is not, max out glide until glide is reset,
             # prevents multiple not-max glides in one air time but allows holding, letting go and re-pressing in air.
             if self.glide_pressed and self.gliding:
@@ -170,14 +173,60 @@ class Player(pygame.sprite.Sprite):
 
         self.glide()
 
-    def respawn(self, pos):
-        self.rect.x, self.rect.y = pos[0], pos[1]  # set position to respawn point
+        # TODO testing, remove
+        if keys[pygame.K_r] or self.get_controller_input('dev'):
+            self.invoke_respawn()
+
+    # checks controller inputs and returns true or false based on passed check
+    # pygame controller docs: https://www.pygame.org/docs/ref/joystick.html
+    def get_controller_input(self, input_check):
+        # check if controllers are connected before getting controller input (done every frame preventing error if suddenly disconnected)
+        if len(self.controllers) > 0:
+            controller = self.controllers[0]
+            if input_check == 'jump' and controller.get_button(controller_map['X']):
+                return True
+            elif input_check == 'right':
+                if controller.get_hat(0)[0] == 1 or (0.2 < controller.get_axis(controller_map['left_analog_x']) <= 1):
+                    return True
+            elif input_check == 'left':
+                if controller.get_hat(0)[0] == -1 or (-0.2 > controller.get_axis(controller_map['left_analog_x']) >= -1):
+                    return True
+                '''elif input_check == 'up':
+                    if controller.get_hat(0)[1] == 1 or (-0.2 > controller.get_axis(controller_map['left_analog_y']) >= -1):
+                        return True
+                elif input_check == 'down':
+                    if controller.get_hat(0)[1] == -1 or (0.2 < controller.get_axis(controller_map['left_analog_y']) <= 1):
+                        return True'''
+            elif input_check == 'dash' and controller.get_button(controller_map['R2']) > 0.8:
+                return True
+            elif input_check == 'glide' and (controller.get_button(controller_map['L1']) or controller.get_hat(0)[1] == -1):
+                return True
+            # TODO testing, remove
+            elif input_check == 'dev' and controller.get_button(controller_map['right_analog_press']):
+                return True
+        return False
+
+    # - respawn -
+
+    def invoke_respawn(self):
+        self.respawn = True
+
+    def get_respawn(self):
+        return self.respawn
+
+    def player_respawn(self, spawn):
+        self.rect.x, self.rect.y = spawn.x, spawn.y  # set position to respawn point
         self.sync_hitbox()
+        if spawn.player_facing == 'right':
+            self.facing_right = 1
+        else:
+            self.facing_right = -1
         self.direction = pygame.math.Vector2(0, 0)  # reset movement
         self.dashing = False  # end any dashes on respawn
         self.dash_timer = self.dash_max  # prevent dash immediately on reset
         self.gliding = False  # end any gliding on respawn
         self.jumping = False  # end any jumps on respawn
+        self.respawn = False
 
 # -- movement methods --
 
@@ -323,13 +372,11 @@ class Player(pygame.sprite.Sprite):
         self.on_ground = False
 
         for tile in tiles:
-            #print(f'{self.hitbox.bottom}, {tile.hitbox.top}')
             if tile.hitbox.colliderect(self.hitbox):
                 # abs ensures only the desired side registers collision
                 if abs(tile.hitbox.top - self.hitbox.bottom) < self.collision_tolerance:
                     self.on_ground = True
                     self.hitbox.bottom = tile.hitbox.top
-                    break
                 elif abs(tile.hitbox.bottom - self.hitbox.top) < self.collision_tolerance:
                     self.hitbox.top = tile.hitbox.bottom
                     # if collide with bottom of tile, fall immediately
@@ -382,9 +429,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.y -= int(scroll_value[0])
         self.sync_hitbox()
 
-    def update(self, tiles, scroll_value):
+    def update(self, tiles, scroll_value, current_spawn):
         self.terminal_vel = self.norm_terminal_vel  # resets terminal vel for next frame. Allows wall cling and glide to
         # reset without interfering with each other.
+
+        # respawns player if respawn has been evoked
+        if self.respawn:
+            self.player_respawn(current_spawn)
 
         # -- input --
         self.get_input()
@@ -410,7 +461,6 @@ class Player(pygame.sprite.Sprite):
         # if pressing right and colliding on the left, or vise versa, increment sticky
         elif (self.right_pressed and not self.on_wall_right) or (self.left_pressed and self.on_wall_right):
             pass
-
 
         # scroll shouldn't have collision applied, it is separate movement
         self.apply_scroll(scroll_value)

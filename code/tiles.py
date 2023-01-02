@@ -3,7 +3,7 @@ from support import import_folder, scale_hitbox
 
 
 # base tile class with block fill image
-class Tile(pygame.sprite.Sprite):
+class StaticTile(pygame.sprite.Sprite):
     def __init__(self, pos, size):
         super().__init__()
         self.image = pygame.Surface((size, size))  # creates square tile
@@ -28,7 +28,7 @@ class Tile(pygame.sprite.Sprite):
 
 
 # terrain tile type, inherits from main tile and can be assigned an image
-class StaticTile(Tile):
+class CollideableTile(StaticTile):
     def __init__(self, pos, size, surface):
         super().__init__(pos, size)  # passing in variables to parent class
         self.image = surface  # image is passed tile surface
@@ -40,8 +40,19 @@ class StaticTile(Tile):
         self.rect.y -= int(scroll_value[0])
         self.hitbox.midbottom = self.rect.midbottom
 
+
+class HazardTile(CollideableTile):
+    def __init__(self, pos, size, surface, player):
+        super().__init__(pos, size, surface)
+        self.player = player
+
+    def update(self, scroll_value):
+        if self.hitbox.colliderect(self.player.hitbox):
+            self.player.invoke_respawn()
+        self.apply_scroll(scroll_value)
+
 # animated tile that can be assigned images from a folder to animate
-class AnimatedTile(Tile):
+class AnimatedTile(StaticTile):
     def __init__(self, pos, size, path):
         super().__init__(pos, size)
         self.frames = import_folder(path, 'list')

@@ -1,12 +1,13 @@
 Todo List:
 
 -- Camera --
-o camera code messy
 o walking horizontal offset
-o Camera starts positioned on player (more accurate focus)
+o respawn target starts with offset
 o Smooth camera ease into stopped player
+o target focus doesnt always work (related to camera bounds?)
 o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
+o camera boundaries issues on spawn and jump dash through transitions
 
 -- Player --
 o investigate player TODOs *******
@@ -26,8 +27,7 @@ o Inaccurate movement features (sticky walls, dash reset early?) **
 o sRGB warning
 o kill level instance properly
 o clean spawn points
-o respawn player after hazard. Correct place??
-
+o respawn player facing correct direction
 
 
 #### LARGE SCALE DIRECTION ####
