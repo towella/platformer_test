@@ -1,8 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="32" height="22" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="3">
- <tileset firstgid="1" source="../assets/tiles/tile_set_template/tile_set_template.tsx"/>
- <layer id="6" name="hazards" width="32" height="22">
-  <data encoding="csv">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="32" height="22" tilewidth="16" tileheight="16" infinite="0" nextlayerid="22" nextobjectid="9">
+ <tileset firstgid="1" source="../assets/level_assets/tiles/tile_set_template/tile_set_template.tsx"/>
+ <tileset firstgid="101" source="../assets/level_assets/decoration objects/object_set_template/object_set_template.tsx"/>
+ <group id="14" name="visuals">
+  <group id="16" name="bg decoration">
+   <layer id="20" name="background tile 1" class="tile decoration" width="32" height="22">
+    <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,61,61,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,61,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,61,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,0,0,0,
+0,0,0,0,0,0,0,61,61,0,61,61,61,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,0,0,0,
+0,0,0,0,0,0,0,61,61,61,61,61,61,61,0,0,0,0,0,0,0,0,61,0,0,0,0,0,61,0,0,0,
+0,0,61,61,0,0,0,61,61,61,61,61,0,61,0,0,0,0,0,0,0,61,61,0,0,0,0,0,61,0,0,0,
+0,0,61,61,0,0,0,61,0,0,0,0,0,61,0,0,0,0,0,0,61,61,61,61,0,0,0,0,0,0,0,0,
+0,0,61,61,61,61,61,0,0,0,0,0,0,61,0,0,0,0,0,0,61,0,0,61,0,0,0,0,0,0,0,0,
+0,0,61,61,61,0,61,0,0,0,0,0,0,61,0,0,0,0,0,0,61,61,61,61,0,0,0,0,0,0,0,0,
+0,0,61,0,0,61,61,0,0,0,0,0,0,61,0,0,0,0,0,0,61,61,0,61,61,0,0,0,0,0,0,0,
+0,0,61,61,61,61,0,0,0,0,0,0,0,61,61,0,0,0,0,0,61,61,61,0,61,0,0,0,0,0,0,0,
+0,61,61,61,61,61,0,0,0,0,0,0,0,61,61,0,0,0,0,0,61,61,61,61,61,0,0,0,61,0,0,0,
+0,61,61,61,61,61,0,0,0,0,0,0,0,61,61,0,0,0,61,0,61,61,61,61,61,0,0,61,61,0,0,0,
+0,61,61,0,61,0,0,0,0,0,0,0,0,61,61,0,0,61,61,0,61,61,61,61,61,0,61,61,61,0,0,0,
+0,61,61,61,61,0,0,0,0,0,0,0,0,61,61,0,0,61,61,0,0,61,61,61,61,0,61,61,61,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+   </layer>
+   <objectgroup id="21" name="background object 1" class="object decoration">
+    <object id="5" gid="101" x="246" y="167" width="30" height="30"/>
+    <object id="6" gid="101" x="323" y="107" width="30" height="30"/>
+    <object id="7" gid="101" x="194" y="133" width="30" height="30"/>
+   </objectgroup>
+  </group>
+  <layer id="6" name="hazards" width="32" height="22">
+   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -26,9 +61,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
- </layer>
- <layer id="1" name="collideable" width="32" height="22">
-  <data encoding="csv">
+  </layer>
+  <layer id="1" name="collideable" width="32" height="22">
+   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,0,0,
 0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,0,0,
@@ -52,18 +87,21 @@
 0,18,4,4,4,56,37,37,37,37,37,37,57,4,4,4,4,4,4,6,4,4,4,4,4,6,4,4,4,13,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
- </layer>
- <objectgroup id="3" name="transitions">
-  <object id="1" name="room_0" class="Trigger" x="-32.9936" y="250.916" width="55.9502" height="74.873"/>
- </objectgroup>
- <objectgroup id="4" name="spawns">
-  <object id="2" name="room_0" class="Spawn" x="48.0238" y="294.672">
-   <properties>
-    <property name="player_facing" value="right"/>
-   </properties>
-   <point/>
-  </object>
- </objectgroup>
+  </layer>
+  <group id="15" name="fg decoration"/>
+ </group>
+ <group id="13" name="systems">
+  <objectgroup id="3" name="transitions">
+   <object id="3" template="tiled_templates/Trigger.tx" name="room_0" class="Trigger" x="-29" y="247" width="55.9502" height="80.993"/>
+  </objectgroup>
+  <objectgroup id="4" name="spawns">
+   <object id="2" template="tiled_templates/Spawn.tx" name="room_0" class="Spawn" x="48.0238" y="294.672">
+    <properties>
+     <property name="player_facing" value="right"/>
+    </properties>
+   </object>
+  </objectgroup>
+ </group>
  <group id="9" name="camera">
   <layer id="7" name="abs camera boundaries x" width="32" height="22">
    <data encoding="csv">

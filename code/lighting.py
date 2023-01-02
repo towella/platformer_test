@@ -1,9 +1,10 @@
-import pygame, math
+import pygame
+from math import sin
 from random import randint
 from support import circle_surf, pos_for_center, raycast, get_rect_corners, get_angle, get_distance
 
 
-class Light():
+class Light:
     def __init__(self, surface, pos, colour, raycasted, max_radius, min_radius=0, glow_speed=0):
         self.surface = surface
         self.pos = pos
@@ -19,7 +20,8 @@ class Light():
         self.image = circle_surf(self.radius, self.colour)
 
     # TODO change angles to RADIANS for precsision
-    def raycasted_light(self, pos, tiles):
+    # use mask of tile layer to get verticies more efficiently
+    '''def raycasted_light(self, pos, tiles):
         angles = []
         points = []
         polygon_points = {}
@@ -61,13 +63,28 @@ class Light():
         if len(points) > 2:
             pygame.draw.polygon(light_surf, self.colour, points, 0)
 
-        return light_surf
+        return light_surf'''
+
+
+    def get_surf(self):
+        surf = pygame.Surface((self.radius * 2, self.radius * 2))
+        surf.set_colorkey((0, 0, 0))
+        surf.blit(self.image, (0, 0))
+        return surf
+
+    def composite_lighting(self, mask_tile):
+        surf = self.get_surf()
+        light_center = pos_for_center(surf, self.pos)
+
+        surf.blit(mask_tile.image, (-light_center[0] + mask_tile.rect.topleft[0], -light_center[1] + mask_tile.rect.topleft[1]))
+        surf.set_colorkey((0, 0, 0))
+        return surf
 
     def update(self, dt, pos, tiles=pygame.sprite.Group()):
         # amplitude * sin(time * speed) + max_radius - amplitude
         # adding difference between max_radius and amplitude brings sin values (based on amplitude)
         # into correct range between max and min.
-        self.radius = self.amplitude * math.sin(self.time * self.glow_speed) + self.max_radius - self.amplitude
+        self.radius = self.amplitude * sin(self.time * self.glow_speed) + self.max_radius - self.amplitude
         self.pos = pos
 
         if not self.raycasted:
@@ -77,6 +94,11 @@ class Light():
 
         self.time += round(1 * dt)
 
-    def draw(self):
-        self.surface.blit(self.image, pos_for_center(self.image, self.pos), special_flags=pygame.BLEND_RGB_ADD)
+    # mask_tile must be of a tile class with image (surface) and position attributes (e.g. rect, 2-tuple)
+    def draw(self, mask_tile=None):
+        if mask_tile is None:
+            surf = self.image
+        else:
+            surf = self.composite_lighting(mask_tile)
+        self.surface.blit(surf, pos_for_center(self.image, self.pos), special_flags=pygame.BLEND_RGB_ADD)
 

@@ -1,4 +1,4 @@
-VERSION 5 - PROTOTYPE:
+VERSION 6 - PROTOTYPE:
 
 Versions:
 - Python: 3.7.9 (for controller input with pygame and ease of use w/ pyinstaller)
@@ -9,8 +9,6 @@ Versions:
 
 
 Includes:
-- NO animation
-
 - placeholder game icon
 
 - ability to create app with pyinstaller
@@ -31,7 +29,8 @@ Includes:
     - transition based spawn point objects that tell the player what direction to face
     - trigger/spawn system for within room spawn points
     - live updates on rooms (move between transitions to update)
-    - continuing to read docs for more ease of use
+    - Support for multiple different types of layer
+    - UNFINISHED parallax
 
 - mostly working but unfinished camera
 	- interpolated horizontal and vertical
@@ -55,6 +54,7 @@ Includes:
 - glide
 - crouch with slowed down speed, forced crouch under platforms and preventing dash and wall cling/jumps when crouching
 - in progress wall climb
+- rudimentary animation system
 
 - contact with hazards cause player respawn at latest respawn point
 

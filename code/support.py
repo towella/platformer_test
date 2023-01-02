@@ -21,27 +21,30 @@ def resource_path(relative_path):
 
 # imports all the images in a single folder
 # based on passed entity whether it resizes and/or returns list or image surface
+# IMAGES MUST BE NAMED NUMERICALLY
 def import_folder(path, return_type):
     surface_list = []
     allowed_file_types = ['.png', '.jpg', '.jpeg', '.gif']
 
     for folder_name, sub_folders, img_files in os.walk(path):
-        img_files.sort()
-        for image in img_files:
-            for type in allowed_file_types:
-                if type in image.lower():  # prevents invisible non image files causing error while allowing image type to be flexible (e.g. .DS_Store)
-                    full_path = path + '/' + image  # accesses image from directory by creating path name
-                    image_surface = pygame.image.load(full_path).convert_alpha()  # adds image to surface (convert alpha is best practice)
+        if '.DS_Store' in img_files:
+            img_files.remove('.DS_Store')  # remove before sorting frames into order
 
-                    resized_width = image_surface.get_width() * 4  # each art pixel is 4 real pixels. Scales up art to appropriate game size
-                    resized_height = image_surface.get_height() * 4
-                    image_surface = pygame.transform.scale(image_surface, (resized_width, resized_height))
+        # sorts no matter what the file suffix is, by splitting at the period and only looking at the numeric file name
+        img_files.sort(key=lambda x: int(x.split('.')[0]))
+
+        # for every image checks against allowed ftypes and gets image from constructed path.
+        for image in img_files:
+            for ftype in allowed_file_types:
+                if ftype in image.lower():  # prevents invisible non image files causing error while allowing image type to be flexible (e.g. .DS_Store)
+                    full_path = path + '/' + image  # accesses image file by creating path name
+                    image_surface = pygame.image.load(full_path).convert_alpha()  # creates image surf (convert alpha is best practice)
 
                     if return_type == 'surface':
                         return image_surface
 
                     surface_list.append(image_surface)
-                    break  # breaks  from checking allowed file types
+                    break
         # if return_type == 'list'
         return surface_list
 
@@ -142,7 +145,7 @@ def raycast(angle, pos, max_distance, tiles):
     return (pos[0] + x, pos[1] + y)  # returns maximum coordinate value for ray
 
 
-# -- utilities --
+# -- UTILITIES --
 
 def get_rect_corners(rect):
     return [rect.topleft, rect.topright, rect.bottomright, rect.bottomleft]

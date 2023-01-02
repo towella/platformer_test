@@ -1,47 +1,52 @@
-import math
-
 import pygame
 from game_data import tile_size, controller_map
+from tiles import StaticTile
 from lighting import Light
 from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, spawn, surface, controllers):
+    def __init__(self, room, spawn):
         super().__init__()
-        self.surface = surface
-        self.controllers = controllers
+        self.room = room
+        self.surface = room.screen_surface
+        self.controllers = room.controllers
 
-        # -- player setup --
-        # - animation and assets --
-        '''self.animations = {}
-        self.animations = self.import_character_assets(self.animations)
+        # -- PLAYER SETUP --
+        # player is (tile_size, tile_size * 1.5)
+
+        # - animation, hitboxes and assets --
+        # declare what keys require corresponding animations (each key is name of folder in assets)
+        self.animations = {"idle_right": [], "idle_left": [], "idle_crouch": []}
+        self.animations = self.import_character_animations(self.animations)
         self.frame_index = 0
-        self.animation_speed = 5  # time in frames that animation frames change'''
+        self.animation_speed = 5  # time in frames that animation frames change
 
+        # - player state on spawn (image, facing dir, respawn=False) -
         # set up starting player facing direction and starting image
         if spawn.player_facing == 'right':
             self.facing_right = True
-            #self.image = self.animations['idle_right'][self.frame_index]
+            self.image = self.animations['idle_right'][self.frame_index]
+            self.current_anim = 'idle_right'
         else:
             self.facing_right = False
-            #self.image = self.animations['idle_left'][self.frame_index]
+            self.image = self.animations['idle_left'][self.frame_index]
+            self.current_anim = 'idle_left'
         self.respawn = False
-
-        self.image = pygame.Surface((tile_size, tile_size * 1.5))
-        self.image.fill((255, 88, 98))
 
         # - rect and lights -
         self.rect = pygame.Rect(spawn.x, spawn.y, self.image.get_width(), self.image.get_height())
-        self.light_distance = 40
-        self.lights = [Light(self.surface, self.rect.center, (10, 10, 10), False, 40, 30, 0.02),
-                       Light(self.surface, self.rect.center, (20, 20, 20), False, 25, 20, 0.02)]
-        # - hitboxes -
-        self.norm_hitbox = pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 1.4)  # used for collisions
-        self.crouch_hitbox = pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 0.8)  # used for crouched collisions
-        self.hitbox = self.norm_hitbox  # used for collisions and can be different to rect and image
+        self.lights = [Light(self.surface, self.rect.center, (15, 15, 15), False, 40, 30, 0.02),
+                       Light(self.surface, self.rect.center, (20, 25, 25), False, 25, 20, 0.02)]
+        self.light_background_mask = self.get_background_light_mask_tile(room.background_layers)
 
-        # -- player movement --
+        # - hitboxes  -
+        self.hitboxes = {
+            "normal": pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 1.4),
+            "crouch": pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 0.8)}
+        self.hitbox = self.hitboxes["normal"]  # used for collisions and can be different to rect and image
+
+        # -- PLAYER MOVEMENT --
         self.direction = pygame.math.Vector2(0, 0)  # allows cleaner movement by storing both x and y direction
         # collisions -- provides a buffer allowing late collision
         self.collision_tolerance = tile_size
@@ -126,10 +131,10 @@ class Player(pygame.sprite.Sprite):
         self.crouching = False
         self.crouch_speed = 1  # speed of walk when crouching
 
-# -- imports --
+# -- imports and setup --
 
-    # imports all character animations from folders
-    '''def import_character_animations(self, animations):
+    # imports all character animations from folders into dict
+    def import_character_animations(self, animations):
         animations_path = '../assets/player/animations/'
         # dictionary keys are the same name as folder
         
@@ -139,9 +144,10 @@ class Player(pygame.sprite.Sprite):
         for animation in animations.keys():
             full_path = animations_path + animation  # extends directory pointer with desired animation folder
             animations[animation] = import_folder(full_path, 'list')
-        return animations'''
-    
-    '''def import_character_hitboxes(self, hitboxes):
+        return animations
+
+    # keep just in case required to make hitboxing easier for large scale dev rather than creating rect hitbox manually
+    def import_character_hitboxes(self, hitboxes):
         hitboxes_path = '../assets/player/hitboxes/'
         # dictionary keys are the same name as folder
         
@@ -151,7 +157,31 @@ class Player(pygame.sprite.Sprite):
         for hitbox in hitboxes.keys():
             full_path = hitboxes_path + hitbox
             hitboxes[hitbox] = import_folder(full_path, 'surface')
-        return hitboxes'''
+        return hitboxes
+
+    def get_background_light_mask_tile(self, background_layers):
+        sprite_group = pygame.sprite.GroupSingle()
+
+        # working surface, ends up with all parallax-1 layers compressed onto it and then masked
+        combined_layers = pygame.Surface((background_layers[0].sprite.image.get_width(),
+                                          background_layers[0].sprite.image.get_height()))
+        combined_layers.set_colorkey((0, 0, 0))
+
+        # get parallax-1 background layer tiles
+        for layer_tile in background_layers:
+            if layer_tile.sprite.parallax == (1, 1):
+                combined_layers.blit(layer_tile.sprite.image, (0, 0))
+
+        # create mask with layer tiles cut out (white = on px, leave off px for cutting out light surfs)
+        mask = pygame.mask.from_surface(combined_layers)
+        mask = mask.to_surface()
+        mask.set_colorkey((255, 255, 255))
+
+        # create tile holding mask so shifts with rest of world
+        tile = StaticTile((0, 0), (mask.get_width(), mask.get_height()), (1, 1), mask)
+        sprite_group.add(tile)
+
+        return sprite_group
 
 # -- checks --
 
@@ -425,16 +455,16 @@ class Player(pygame.sprite.Sprite):
     def crouch(self, tiles):
         if self.crouching:
             # change to crouched hitbox and sync to the same pos as previous hitbox (using rect midbottom)
-            self.hitbox = self.crouch_hitbox
+            self.hitbox = self.hitboxes["crouch"]
             self.sync_hitbox()
         # - exception case (if not crouching but should be forced to cause under platform) -
         else:
             # if normal hitbox top collides with a tile, make crouched
             for tile in tiles:
-                if tile.hitbox.colliderect(self.norm_hitbox):
-                    if abs(tile.hitbox.bottom - self.norm_hitbox.top) < self.collision_tolerance:
+                if tile.hitbox.colliderect(self.hitboxes["normal"]):
+                    if abs(tile.hitbox.bottom - self.hitboxes["normal"].top) < self.collision_tolerance:
                         # change to crouched hitbox and sync to the same pos as previous hitbox (using rect midbottom)
-                        self.hitbox = self.crouch_hitbox
+                        self.hitbox = self.hitboxes["crouch"]
                         self.sync_hitbox()
                         self.crouching = True
                         break
@@ -454,10 +484,34 @@ class Player(pygame.sprite.Sprite):
         elif self.glide_timer >= self.glide_max or not self.gliding:
             self.gliding = False
 
+# -- visuals methods --
+
+    def animator(self, dt):
+        prev_anim = self.current_anim
+
+        # determine animation corresponding with player state
+        if self.crouching:
+            self.current_anim = 'idle_crouch'
+        elif self.facing_right:
+            self.current_anim = 'idle_right'
+        elif not self.facing_right:
+            self.current_anim = 'idle_left'
+
+        # increment index and access required animation from dict
+        anim_frames = self.animations[self.current_anim]
+        self.frame_index += round(1 * dt)
+
+        # if anim has changed or frame_index > than number of frames in anim, reset frame index
+        if prev_anim != self.current_anim or self.frame_index > len(anim_frames) - 1:
+            self.frame_index = 0
+
+        # reassign player image
+        self.image = anim_frames[int(self.frame_index)]
+
 # -- update methods --
 
-    # checks collision for a given hitbox against given tiles on the x
-    def collision_x(self, hitbox, tiles):
+    # checks collision for a given hitbox (the player's) against given tiles on the x
+    def collision_x(self, tiles):
         collision_offset = [0, 0]  # position hitbox is to be corrected to after checks
         self.on_wall = False
 
@@ -467,15 +521,15 @@ class Player(pygame.sprite.Sprite):
         bottom_margin = False
 
         for tile in tiles:
-            if tile.hitbox.colliderect(hitbox):
+            if tile.hitbox.colliderect(self.hitbox):
                 # - normal collision checks -
                 # abs ensures only the desired side registers collision
                 # not having collisions dependant on status allows hitboxes to change size
-                if abs(tile.hitbox.right - hitbox.left) < self.collision_tolerance:
-                    collision_offset[0] = tile.hitbox.right - hitbox.left
+                if abs(tile.hitbox.right - self.hitbox.left) < self.collision_tolerance:
+                    collision_offset[0] = tile.hitbox.right - self.hitbox.left
                     self.on_wall_right = -1  # player touching on left
-                elif abs(tile.hitbox.left - hitbox.right) < self.collision_tolerance:
-                    collision_offset[0] = tile.hitbox.left - hitbox.right
+                elif abs(tile.hitbox.left - self.hitbox.right) < self.collision_tolerance:
+                    collision_offset[0] = tile.hitbox.left - self.hitbox.right
                     self.on_wall_right = 1  # player touching on right
 
                 # - wall cling - (self.on_wall_right above)
@@ -492,37 +546,37 @@ class Player(pygame.sprite.Sprite):
                 # this allows determination as to whether on the end of a column of tiles or not
 
                 # top
-                if tile.hitbox.top <= hitbox.top <= tile.hitbox.bottom:
+                if tile.hitbox.top <= self.hitbox.top <= tile.hitbox.bottom:
                     top = True
-                if tile.hitbox.top <= hitbox.top + self.corner_correction <= tile.hitbox.bottom:
+                if tile.hitbox.top <= self.hitbox.top + self.corner_correction <= tile.hitbox.bottom:
                     top_margin = True
                 # stores tile for later potential corner correction
-                if hitbox.top < tile.hitbox.bottom < hitbox.top + self.corner_correction:
-                    collision_offset[1] = tile.hitbox.bottom - hitbox.top
+                if self.hitbox.top < tile.hitbox.bottom < self.hitbox.top + self.corner_correction:
+                    collision_offset[1] = tile.hitbox.bottom - self.hitbox.top
 
                 # bottom
-                if tile.hitbox.top <= hitbox.bottom <= tile.hitbox.bottom:
+                if tile.hitbox.top <= self.hitbox.bottom <= tile.hitbox.bottom:
                     bottom = True
-                if tile.hitbox.top <= hitbox.bottom - self.corner_correction <= tile.hitbox.bottom:
+                if tile.hitbox.top <= self.hitbox.bottom - self.corner_correction <= tile.hitbox.bottom:
                     bottom_margin = True
-                if hitbox.bottom > tile.hitbox.top > hitbox.bottom - self.corner_correction:
-                    collision_offset[1] = -(hitbox.bottom - tile.hitbox.top)
+                if self.hitbox.bottom > tile.hitbox.top > self.hitbox.bottom - self.corner_correction:
+                    collision_offset[1] = -(self.hitbox.bottom - tile.hitbox.top)
 
         # -- application of offsets --
         # must occur after checks so that corner correction can check every contacted tile
         # without movement of hitbox half way through checks
         # - collision correction -
-        hitbox.x += collision_offset[0]
+        self.hitbox.x += collision_offset[0]
         # - corner correction -
         # adding velocity requirement prevents correction when just walking towards a wall. Only works at a higher
         # velocity like during a dash or if the player is boosted.
         if ((top and not top_margin) or (bottom and not bottom_margin)) and abs(self.direction.x) >= self.dash_speed:
-            hitbox.y += collision_offset[1]
+            self.hitbox.y += collision_offset[1]
 
         self.sync_rect()
 
-    # checks collision for a given hitbox against given tiles on the y
-    def collision_y(self, hitbox, tiles):
+    # checks collision for a given hitbox (the player's) against given tiles on the y
+    def collision_y(self, tiles):
         collision_offset = [0, 0]
         self.on_ground = False
 
@@ -534,41 +588,41 @@ class Player(pygame.sprite.Sprite):
         bonk = False
 
         for tile in tiles:
-            if tile.hitbox.colliderect(hitbox):
+            if tile.hitbox.colliderect(self.hitbox):
                 # abs ensures only the desired side registers collision
-                if abs(tile.hitbox.top - hitbox.bottom) < self.collision_tolerance:
+                if abs(tile.hitbox.top - self.hitbox.bottom) < self.collision_tolerance:
                     self.on_ground = True
-                    collision_offset[1] = tile.hitbox.top - hitbox.bottom
+                    collision_offset[1] = tile.hitbox.top - self.hitbox.bottom
                 # collision with bottom of tile
-                elif abs(tile.hitbox.bottom - hitbox.top) < self.collision_tolerance:
-                    collision_offset[1] = tile.hitbox.bottom - hitbox.top
+                elif abs(tile.hitbox.bottom - self.hitbox.top) < self.collision_tolerance:
+                    collision_offset[1] = tile.hitbox.bottom - self.hitbox.top
 
                     # - vertical corner correction - (only for top, not bottom collision)
                     # left
-                    if tile.hitbox.left <= hitbox.left <= tile.hitbox.right:
+                    if tile.hitbox.left <= self.hitbox.left <= tile.hitbox.right:
                         left = True
-                    if tile.hitbox.left <= hitbox.left + self.corner_correction <= tile.hitbox.right:
+                    if tile.hitbox.left <= self.hitbox.left + self.corner_correction <= tile.hitbox.right:
                         left_margin = True
-                    if hitbox.left < tile.hitbox.right < hitbox.left + self.corner_correction:
-                        collision_offset[0] = tile.hitbox.right - hitbox.left
+                    if self.hitbox.left < tile.hitbox.right < self.hitbox.left + self.corner_correction:
+                        collision_offset[0] = tile.hitbox.right - self.hitbox.left
 
                     # right
-                    if tile.hitbox.left <= hitbox.right <= tile.hitbox.right:
+                    if tile.hitbox.left <= self.hitbox.right <= tile.hitbox.right:
                         right = True
-                    if tile.hitbox.left <= hitbox.right - self.corner_correction <= tile.hitbox.right:
+                    if tile.hitbox.left <= self.hitbox.right - self.corner_correction <= tile.hitbox.right:
                         right_margin = True
-                    if hitbox.right > tile.hitbox.left > hitbox.right - self.corner_correction:
-                        collision_offset[0] = -(hitbox.right - tile.hitbox.left)
+                    if self.hitbox.right > tile.hitbox.left > self.hitbox.right - self.corner_correction:
+                        collision_offset[0] = -(self.hitbox.right - tile.hitbox.left)
 
                     bonk = True
 
         # -- application of offsets --
         # - normal collisions -
-        hitbox.y += collision_offset[1]
+        self.hitbox.y += collision_offset[1]
         # - corner correction -
         if (left and not left_margin) or (right and not right_margin):
-            hitbox.x += collision_offset[0]
-            hitbox.y -= self.vertical_corner_correction_boost
+            self.hitbox.x += collision_offset[0]
+            self.hitbox.y -= self.vertical_corner_correction_boost
         # drop by zeroing upwards velocity if corner correction isn't necessary and hit bottom of tile
         elif bonk:
             self.direction.y = 0
@@ -614,30 +668,30 @@ class Player(pygame.sprite.Sprite):
     # syncs the player's current and stored hitboxes with the player rect for proper collisions. For use after movement of player rect.
     def sync_hitbox(self):
         self.hitbox.midbottom = self.rect.midbottom
-        self.norm_hitbox.midbottom = self.rect.midbottom
-        self.crouch_hitbox.midbottom = self.rect.midbottom
+        for hitbox in self.hitboxes:
+            self.hitboxes[hitbox].midbottom = self.rect.midbottom
 
     # syncs the player's rect with the current hitbox for proper movement. For use after movement of main hitbox
     def sync_rect(self):
         self.rect.midbottom = self.hitbox.midbottom
 
     def apply_scroll(self, scroll_value):
+        # must be here for when camera is initally created in room and scroll value is applied to all tiles
+        # must be applied to mask as well otherwise it is consistently out by initial scroll value
+        self.light_background_mask.sprite.apply_scroll(scroll_value)
+
         self.rect.x -= int(scroll_value[0])
         self.rect.y -= int(scroll_value[1])
         self.sync_hitbox()
 
-    def update(self, dt, tiles, scroll_value, current_spawn):
+    def update(self, dt, collision_tiles, scroll_value):
         self.terminal_vel = self.norm_terminal_vel  # resets terminal vel for next frame. Allows wall cling and glide to
         # reset without interfering with each other.
-        self.hitbox = self.norm_hitbox  # same with hitbox as terminal vel
+        self.hitbox = self.hitboxes["normal"]  # same with hitbox as terminal vel
         self.sync_hitbox()  # just in case
 
-        # respawns player if respawn has been evoked
-        if self.respawn:
-            self.player_respawn(current_spawn)
-
         # -- INPUT --
-        self.get_input(dt, tiles)
+        self.get_input(dt, collision_tiles)
 
         # -- CHECKS/UPDATE --
 
@@ -648,12 +702,12 @@ class Player(pygame.sprite.Sprite):
         # x
         self.rect.x += round(self.direction.x * dt)
         self.sync_hitbox()
-        self.collision_x(self.hitbox, tiles)
+        self.collision_x(collision_tiles)
 
         # y
         # applies direction to player then resyncs hitbox
         self.apply_y_direction(dt)  # gravity
-        self.collision_y(self.hitbox, tiles)
+        self.collision_y(collision_tiles)
 
         # sticky walls
         # is on the ground or not on the wall, reset sticky timer
@@ -668,13 +722,16 @@ class Player(pygame.sprite.Sprite):
 
         # light (after movement and scroll so pos is accurate)
         for light in self.lights:
-            light.update(dt, self.rect.center, tiles)
+            light.update(dt, self.rect.center, collision_tiles)
 
-# -- visual methods --
+        # animate after movement checks
+        self.animator(dt)
+
+# -- render method --
 
     def draw(self):
+        # draw lights
         for light in self.lights:
-            light.draw()
-
+            light.draw(self.light_background_mask.sprite)
+        # draw player
         self.surface.blit(self.image, self.rect)
-

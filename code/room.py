@@ -1,11 +1,11 @@
 # - libraries -
 import pygame
-from pytmx.util_pygame import load_pygame  # allows use of tiled tile map files for pygame use
+from pytmx.util_pygame import load_pygame
 # - general -
-from game_data import controller_map, fonts
+from game_data import controller_map, fonts, tile_size
 from support import *
 # - tiles -
-from tiles import CollideableTile, HazardTile
+from tiles import StaticTile, CollideableTile, HazardTile
 # - objects -
 from player import Player
 from trigger import Trigger, SpawnTrigger
@@ -38,78 +38,102 @@ class Room:
 
         # - get level data -
         tmx_data = load_pygame(resource_path(room_data))  # tile map file
-        self.all_sprites = pygame.sprite.Group()  # contains all sprites for ease of updating/scrolling
+        self.all_tile_sprites = pygame.sprite.Group()  # contains all tile sprites for ease of updating/scrolling
+        self.all_object_sprites = pygame.sprite.Group()
+
+        # get decoration layers
+        self.background_layers = []  # ordered list of all background layers (in render order)
+        self.foreground_layers = []  # ordered list of all foreground layers (in render order)
+        for layer in tmx_data.layernames:
+            # layer names is in the same order from the editor so background layers will be stored in correct order and
+            # rendered in that order. In order for this to work, folder name must not contain 'background' (use bg instead)
+            if 'background' in layer:
+                self.background_layers.append(self.create_decoration_layer(tmx_data, layer))
+            # see commenting for self.background_layers
+            elif 'foreground' in layer:
+                self.foreground_layers.append(self.create_decoration_layer(tmx_data, layer))
 
         # get objects
-        self.transitions = self.create_object_group(tmx_data, 'transitions', 'Trigger')
-        self.player_spawns = self.create_object_group(tmx_data, 'spawns', 'Spawn')
-        self.spawn_triggers = self.create_object_group(tmx_data, 'spawns', 'SpawnTrigger')
+        self.transitions = self.create_object_layer(tmx_data, 'transitions', 'Trigger')
+        self.player_spawns = self.create_object_layer(tmx_data, 'spawns', 'Spawn')
+        self.spawn_triggers = self.create_object_layer(tmx_data, 'spawns', 'SpawnTrigger')
         # self.player_spawn_triggers = self.create_object_group(tmx_data, 'spawns', 'Trigger')
-        self.player = self.create_object_group(tmx_data, '', 'Player')  # must be completed after player_spawns layer
+        self.player = self.create_object_layer(tmx_data, '', 'Player')  # must be completed after player_spawns layer
 
         # get tiles
-        self.collideable = self.create_tile_group(tmx_data, 'collideable', 'CollideableTile')
-        self.tiles_in_screen = []
-        self.hazards = self.create_tile_group(tmx_data, 'hazards', 'HazardTile')  # TODO hazard, what type?
+        self.collideable = self.create_tile_layer(tmx_data, 'collideable', 'CollideableTile')
+        self.hazards = self.create_tile_layer(tmx_data, 'hazards', 'HazardTile')  # TODO hazard, what type? (use tiled custom hitboxing feature on hazard tiles)
         self.abs_camera_boundaries = {
-            'x': self.create_tile_group(tmx_data, 'abs camera boundaries x', 'CollideableTile'),
-            'y': self.create_tile_group(tmx_data, 'abs camera boundaries y', 'CollideableTile')}
+            'x': self.create_tile_layer(tmx_data, 'abs camera boundaries x', 'CollideableTile'),
+            'y': self.create_tile_layer(tmx_data, 'abs camera boundaries y', 'CollideableTile')}
 
-        # camera setup
+        # - camera setup -
         self.camera = Camera(self.screen_surface, self.screen_rect, self.player.sprite, self.abs_camera_boundaries, controllers)
         self.camera.focus(True)  # focuses camera on target
         scroll_value = self.camera.get_scroll(dt, fps)  # returns scroll, now focused
         self.player.sprite.apply_scroll(scroll_value)  # applies new scroll to player
-        self.all_sprites.update(scroll_value)  # applies new scroll to all sprites
+        self.all_tile_sprites.update(scroll_value)  # applies new scroll to all tile sprites
+        self.all_object_sprites.update(scroll_value)  # applies new scroll to all object sprites
 
-        # text setup
+        # - text setup -
         self.small_font = Font(resource_path(fonts['small_font']), 'white')
         self.large_font = Font(resource_path(fonts['large_font']), 'white')
 
 # -- set up room methods --
 
     # creates all the neccessary types of tiles seperately and places them in individual layer groups
-    def create_tile_group(self, tmx_file, layer_name, type):
+    def create_tile_layer(self, tmx_file, layer_name, type):
         sprite_group = pygame.sprite.Group()
-        layer = tmx_file.get_layer_by_name(layer_name).tiles()
+        layer = tmx_file.get_layer_by_name(layer_name)
+        tiles = layer.tiles()
+        parallax = (layer.parallaxx, layer.parallaxy)
 
-        if type == 'CollideableTile':
+        if type == "StaticTile":
             # gets layer from tmx and creates StaticTile for every tile in the layer, putting them in both SpriteGroups
-            for x, y, surface in layer:
-                tile = CollideableTile((x * tile_size, y * tile_size), tile_size, surface)
+            for x, y, surface in tiles:
+                tile = StaticTile((x * tile_size, y * tile_size), (tile_size, tile_size), parallax, surface)
                 sprite_group.add(tile)
-                self.all_sprites.add(tile)
+                self.all_tile_sprites.add(tile)
+
+        elif type == 'CollideableTile':
+            for x, y, surface in tiles:
+                tile = CollideableTile((x * tile_size, y * tile_size), (tile_size, tile_size), parallax, surface)
+                sprite_group.add(tile)
+                self.all_tile_sprites.add(tile)
+
         elif type == 'HazardTile':
-            for x, y, surface in layer:
-                tile = HazardTile((x * tile_size, y * tile_size), tile_size, surface, self.player.sprite)
+            for x, y, surface in tiles:
+                tile = HazardTile((x * tile_size, y * tile_size), (tile_size, tile_size), parallax, surface, self.player.sprite)
                 sprite_group.add(tile)
-                self.all_sprites.add(tile)
+                self.all_tile_sprites.add(tile)
+
         else:
             raise Exception(f"Invalid create_tile_group type: '{type}' ")
 
         return sprite_group
 
-    def create_object_group(self, tmx_file, layer_name, object_class):
+    def create_object_layer(self, tmx_file, layer_name, object_class):
         sprite_group = pygame.sprite.Group()
         if layer_name:  # prevents accessing '' layer in case of player
             layer = tmx_file.get_layer_by_name(layer_name)
+            parallax = (layer.parallaxx, layer.parallaxy)
 
         if object_class == 'SpawnTrigger':
             for obj in layer:  # can iterate over for objects
                 # checks if object is a trigger (multiple object types/classes could be in the layer)
                 if obj.type == object_class:
                     spawn_data = tmx_file.get_object_by_id(obj.trigger_spawn)
-                    spawn = Spawn(spawn_data.x, spawn_data.y, spawn_data.name, spawn_data.player_facing)
-                    trigger = SpawnTrigger(obj.x, obj.y, obj.width, obj.height, obj.name, spawn)
+                    spawn = Spawn(spawn_data.x, spawn_data.y, spawn_data.name, parallax, spawn_data.player_facing)
+                    trigger = SpawnTrigger(obj.x, obj.y, obj.width, obj.height, obj.name, parallax, spawn)
                     sprite_group.add(trigger)
-                    self.all_sprites.add(trigger)
+                    self.all_object_sprites.add(trigger)
 
         elif object_class == "Trigger":
             for obj in layer:
                 if obj.type == object_class:
-                    trigger = Trigger(obj.x, obj.y, obj.width, obj.height, obj.name)
+                    trigger = Trigger(obj.x, obj.y, obj.width, obj.height, obj.name, parallax)
                     sprite_group.add(trigger)
-                    self.all_sprites.add(trigger)
+                    self.all_object_sprites.add(trigger)
 
         elif object_class == 'Spawn':
             sprite_group = {}
@@ -117,21 +141,57 @@ class Room:
                 # multiple types of object could be in layer, so checking it is correct object type (spawn)
                 if obj.type == object_class:
                     # creates a dictionary containing spawn name: spawn pairs for ease and efficiency of access
-                    spawn = Spawn(obj.x, obj.y, obj.name, obj.player_facing)
+                    spawn = Spawn(obj.x, obj.y, obj.name, parallax, obj.player_facing)
                     sprite_group[spawn.name] = spawn
-                    self.all_sprites.add(spawn)
+                    self.all_object_sprites.add(spawn)
 
         elif object_class == 'Player':
             sprite_group = pygame.sprite.GroupSingle()
             # finds the correct starting position corresponding to the last room/transition
             # TODO remove need for self.player_spawns
             spawn = self.player_spawns[self.previous_room]
-            player = Player(spawn, self.screen_surface, self.controllers)
+            player = Player(self, spawn)
             sprite_group.add(player)
             self.player_spawn = spawn  # stores the spawn instance for future respawn
+
         else:
             raise Exception(f"Invalid create_object_group type: '{type}' ")
 
+        return sprite_group
+
+    def create_image_layer(self, tmx_file, layer_name):
+        sprite_group = pygame.sprite.GroupSingle()
+        layer = tmx_file.get_layer_by_name(layer_name)
+        image = layer.image
+        parallax = (layer.parallaxx, layer.parallaxy)
+
+        tile = StaticTile((0, 0), (image.get_width(), image.get_height()), parallax, image)
+        sprite_group.add(tile)
+        self.all_tile_sprites.add(tile)
+        return sprite_group
+
+    # any layer that is purely for visuals, including parallax layers
+    def create_decoration_layer(self, tmx_file, layer_name):
+        sprite_group = pygame.sprite.GroupSingle()
+        layer = tmx_file.get_layer_by_name(layer_name)
+        parallax = (layer.parallaxx, layer.parallaxy)
+
+        surf = pygame.Surface((tmx_file.width * tile_size, tmx_file.height * tile_size))
+        surf.set_colorkey((0, 0, 0))
+
+        # tile layers
+        if layer.type == 'tile decoration':
+            for x, y, surface in layer.tiles():
+                surf.blit(surface, (x * tile_size, y * tile_size))
+
+        # object layers
+        elif layer.type == 'object decoration':  # layer in tmx_file.objectgroups:
+            for obj in layer:
+                surf.blit(obj.image, (obj.x, obj.y))
+
+        tile = StaticTile((0, 0), (surf.get_width(), surf.get_height()), parallax, surf)
+        sprite_group.add(tile)
+        self.all_tile_sprites.add(tile)
         return sprite_group
 
 # -- check methods --
@@ -188,8 +248,9 @@ class Room:
         for tile in group:
             # render tile
             tile.draw(self.screen_surface, self.screen_rect)
+
             # TODO testing, remove
-            if self.dev_debug:
+            if self.dev_debug and hasattr(tile, 'hitbox'):
                 pygame.draw.rect(self.screen_surface, 'green', tile.hitbox, 1)
 
 # -- menus --
@@ -236,22 +297,27 @@ class Room:
             for spawn_trigger in self.spawn_triggers:
                 if player.hitbox.colliderect(spawn_trigger.hitbox):
                     self.player_spawn = spawn_trigger.trigger_spawn
-                    #self.player_spawn = self.player_spawns[trigger.name]
                     break
 
-            # checks if the player needs to respawn and therefore needs to focus on the player
+            # checks if the player needs to respawn and therefore needs to focus on the player and reset all tiles
             if player.get_respawn():
                 self.camera.focus(True)
+                player.player_respawn(self.player_spawn)  # respawns player if respawn has been evoked
 
         # -- UPDATES -- player needs to be before tiles for scroll to function properly
-            player.update(dt, self.collideable, scroll_value, self.player_spawn)
-            self.all_sprites.update(scroll_value)
+            player.update(dt, self.collideable, scroll_value)
+            self.all_tile_sprites.update(scroll_value, True)
+            self.all_object_sprites.update(scroll_value, True)
 
         # -- RENDER --
-        # Draw
+        # Draw layers
+        for layer in self.background_layers:
+            self.draw_tile_group(layer)
         self.player.sprite.draw()
         self.draw_tile_group(self.collideable)
         self.draw_tile_group(self.hazards)
+        for layer in self.foreground_layers:
+            self.draw_tile_group(layer)
 
         # must be after other renders to ensure menu is drawn last
         if self.pause:
@@ -260,8 +326,8 @@ class Room:
         # Dev Tools
         if self.dev_debug:
             ####### player hitbox #######
-            pygame.draw.rect(self.screen_surface, 'grey', self.player.sprite.crouch_hitbox, 1)
-            pygame.draw.rect(self.screen_surface, 'grey', self.player.sprite.norm_hitbox, 1)
+            pygame.draw.rect(self.screen_surface, 'grey', self.player.sprite.hitboxes['crouch'], 1)
+            pygame.draw.rect(self.screen_surface, 'grey', self.player.sprite.hitboxes['normal'], 1)
             pygame.draw.rect(self.screen_surface, 'yellow', self.player.sprite.hitbox, 1)
             ####### center of screen for testing ######
             pygame.draw.line(self.screen_surface, (34, 22, 43), (self.screen_surface.get_width() // 2, 0), (self.screen_surface.get_width() // 2, self.screen_surface.get_height()), width=1)

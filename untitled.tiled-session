@@ -1,61 +1,104 @@
 {
-    "activeFile": "",
+    "activeFile": "rooms/room_2.tmx",
     "expandedProjectPaths": [
-        "assets/tiles/tile_set_template",
         "rooms",
-        ".",
-        "assets/tiles"
+        "assets/level_assets/tiles/tile_set_template",
+        "assets/tiles/tile_set_template",
+        "assets",
+        "assets/level_assets/tiles",
+        "assets/level_assets",
+        "."
     ],
     "fileStates": {
+        "assets/level_assets/decoration objects/object_set_template/object_set_template.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 3.17
+        },
+        "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 2.0928,
+            "scaleInEditor": 1
+        },
         "assets/tiles/tile_set_template/tile_set_template.tsx": {
-            "scaleInDock": 1.6736,
-            "scaleInEditor": 2.33
+            "dynamicWrapping": true,
+            "scaleInDock": 1.9374,
+            "scaleInEditor": 3.6
         },
         "rooms/room_0.tmx": {
-            "expandedObjectLayers": [
-                8,
-                7
+            "expandedGroupLayers": [
+                14,
+                13,
+                21,
+                16,
+                17
             ],
-            "scale": 0.66,
+            "expandedObjectLayers": [
+                14,
+                16,
+                17
+            ],
+            "scale": 0.3905,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 631.060606060606,
-                "y": 518.1818181818182
+                "x": 906.5300896286811,
+                "y": 827.1446862996157
             }
         },
         "rooms/room_1.tmx": {
-            "expandedObjectLayers": [
-                3,
-                4
+            "expandedGroupLayers": [
+                14,
+                16
             ],
-            "scale": 0.9537109374999999,
-            "selectedLayer": 2,
+            "expandedObjectLayers": [
+                14,
+                21,
+                16
+            ],
+            "scale": 0.3524,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 280.48330944091754,
-                "y": 176.1540036862585
+                "x": 258.22928490351876,
+                "y": 178.77412031782058
             }
         },
         "rooms/room_2.tmx": {
-            "expandedObjectLayers": [
-                6,
-                5
+            "expandedGroupLayers": [
+                15,
+                11,
+                9
             ],
-            "scale": 0.69,
-            "selectedLayer": 2,
+            "scale": 0.3524,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 354.3478260869566,
-                "y": 240.57971014492756
+                "x": 516.4585698070375,
+                "y": 505.10783200908054
             }
         }
     },
+    "last.externalTilesetPath": "/Users/towella/Documents/programming/python/platformer_test/assets/level_assets/tiles/tile_set_template",
+    "last.imagePath": "/Users/towella/Documents/programming/python/platformer_test/assets/level_assets/decoration objects/object_set_template",
+    "last.objectTemplatePath": "/Users/towella/Documents/programming/python/platformer_test/rooms/tiled_templates",
+    "last.worldFilePath": "/Users/towella/Documents/programming/python/platformer_test/rooms/tiled_worlds",
+    "loadedWorlds": [
+    ],
     "openFiles": [
+        "rooms/room_0.tmx",
+        "rooms/room_1.tmx",
+        "rooms/room_2.tmx"
     ],
     "project": "untitled.tiled-project",
-    "property.type": "object",
+    "property.type": "string",
     "recentFiles": [
         "rooms/room_0.tmx",
-        "assets/tiles/tile_set_template/tile_set_template.tsx",
+        "rooms/room_1.tmx",
         "rooms/room_2.tmx",
-        "rooms/room_1.tmx"
-    ]
+        "rooms/room_1.tmx",
+        "assets/level_assets/decoration objects/object_set_template/object_set_template.tsx",
+        "assets/tiles/tile_set_template/tile_set_template.tsx",
+        "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx"
+    ],
+    "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
 }

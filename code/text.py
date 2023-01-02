@@ -1,8 +1,11 @@
 import pygame, sys
 from support import *
 
-
+# black wont work
 def load_font_img(path, font_colour):
+    if font_colour == 'black' or font_colour == (0, 0, 0):
+        font_colour = (1, 0, 0)
+
     fg_colour = (255, 255, 255)
     bg_colour = (0, 0, 0)
     font_img = pygame.image.load(path).convert()
@@ -39,9 +42,10 @@ class Font:
                 text_width += self.letter_spacing[self.font_order.index(char)] + self.base_spacing
         return text_width
 
-    def render(self, text, surf, loc, line_width=0):
+    def render(self, text, surf, loc, outline_col='', line_width=0):
         x_offset = 0
         y_offset = 0
+
         if line_width != 0:
             spaces = []
             x = 0
@@ -59,10 +63,15 @@ class Font:
                         text = text[:spaces[i - 1][1]] + '\n' + text[spaces[i - 1][1] + 1:]
         for char in text:
             if char not in ['\n', ' ']:
-                surf.blit(self.letters[self.font_order.index(char)], (loc[0] + x_offset, loc[1] + y_offset))
+                char_surf = self.letters[self.font_order.index(char)]
+                # outline per char
+                if outline_col != '':
+                    surf.blit(outline_image(char_surf, outline_col), (loc[0] + x_offset -1, loc[1] + y_offset -1))
+                else:
+                    surf.blit(char_surf, (loc[0] + x_offset, loc[1] + y_offset))
                 x_offset += self.letter_spacing[self.font_order.index(char)] + self.base_spacing
             elif char == ' ':
-                x_offset += self.space_width + self.base_spacing
+                x_offset += self.space_width
             else:
                 y_offset += self.line_spacing + self.line_height
                 x_offset = 0

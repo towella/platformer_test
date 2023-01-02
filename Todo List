@@ -5,9 +5,11 @@ o sRGB warning - open png w/ photoshop > File > Save As > Untick ICC Profile: sR
 
 
 -- Camera --
+o fix normal horizontal offset. Its broken :(
 o walking horizontal offset
 o target focus doesnt always work (related to camera bounds?)
 o camera boundaries issues on spawn
+o camera respawn player after image
 o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
 o zoom on custom point rather than only center of screen
@@ -21,9 +23,10 @@ o ensure commenting is accurate ****
 o double check efficiency and setup of lighting system
     - sprite group?
     - add raycasting?
+o fix get_background_light_mask_tile so that rooms with no background layers don't cause crash (working surf has nowhere to
+    get starting dimensions from)
 
 wall slide
-o dash into wall on wall can be used to prevent slide infinitely (dont allow dash if on wall and (on wall right == facing right)
 o wall jump cooldown timer
 
 controls
@@ -34,12 +37,28 @@ o forces based movement
 
 
 -- room --
-respawn is now janky with new setup (see previous frame before respawn after respawn??)
+o respawn is now janky with new setup (see previous frame before respawn after respawn??)
+o fix travelling parallax bug (objects drift)
+o reset parallax layers on respawn to original position
 
 
 #### LARGE SCALE DIRECTION ####
 IMPLEMENT DICTIONARIES for efficiency
 Implement chunk system
 
-o animation
-o paralax scrolling
+
+
+
+add scrolling text function to game somewhere:
+def write(text, scroll_text=True):
+    speed = 0.03
+    if scroll_text:
+        for char in text:
+            sys.stdout.write(char)
+            sys.stdout.flush()
+
+            time.sleep(speed)
+    else:
+        print(text, end="")
+
+    print("")
