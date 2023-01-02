@@ -1,0 +1,47 @@
+VERSION 1 - PROTOTYPE:
+
+Includes:
+- pixel perfect display for pixel art (art pixels == to game pixels)
+- fullscreen capability without screen tearing
+- working collision detection
+- NO controller input
+- MINIMAL level design capability with tiled
+- NO animation/ graphics
+
+- working but unfinished camera
+	- interpolated horizontal and vertical
+	- target system for offsetting
+	- falling and horizontal offsetting with target
+	- manual up/down pan controls
+
+- working walk and gravity/terminal velocity
+
+- working variable height jump
+- working buffered jumping
+- working coyote time jump
+
+- working 2 directional dash with fixed direction
+- working buffered dashing
+
+- working glide
+
+- in progress wall climb
+
+
+Controls:
+- A: left
+- D: right
+- W/Space: jump
+    - (hold): higher jump
+    - (on wall): wall jump *unfinished*
+- S (in air): glide
+- Period: dash
+- UP arrow (on ground): pan camera up
+- DOWN arrow (on ground): pan camera down
+- P: pause
+- Comma: Instant quit
+
+
+Dev Tools:
+- X: switch fps from 60 to 20 and back
+- Z: (show)/Shift+Z (hide): display hitboxes, screen centre and camera target

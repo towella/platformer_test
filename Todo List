@@ -1,0 +1,36 @@
+Todo List:
+
+-- Camera --
+o Look Up/Down w/ arrow keys, clean code and only allowed on the ground
+o walking horizontal offset
+o Camera starts positioned on player (more accurate focus)
+o Smooth camera ease into stopped player
+o camera notes on hollow knight (adjust values mostly)
+o different camera settings for dash
+
+
+-- Player --
+o investigate player TODOs *******
+o ensure commenting is accurate and OK ****
+
+wall slide
+o prevent hold wall jumps
+o extend wall jump
+o wall jump offset horizontal issues
+
+controls
+o more movement mechanics (double jump)
+o Inaccurate movement features (sticky walls, dash reset early?) **
+
+
+-- Level --
+* only general TODOs from previous project *
+
+
+
+#### LARGE SCALE DIRECTION ####
+o tiled implementation
+
+o databases with python?
+o animation
+o paralax scrolling
