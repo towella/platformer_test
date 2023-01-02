@@ -1,7 +1,9 @@
+import math
+
 import pygame
 from game_data import tile_size, controller_map
 from lighting import Light
-from support import raycast
+from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
@@ -11,39 +13,50 @@ class Player(pygame.sprite.Sprite):
         self.controllers = controllers
 
         # -- player setup --
+        # - animation and assets --
+        '''self.animations = {}
+        self.animations = self.import_character_assets(self.animations)
+        self.frame_index = 0
+        self.animation_speed = 5  # time in frames that animation frames change'''
+
+        # set up starting player facing direction and starting image
+        if spawn.player_facing == 'right':
+            self.facing_right = True
+            #self.image = self.animations['idle_right'][self.frame_index]
+        else:
+            self.facing_right = False
+            #self.image = self.animations['idle_left'][self.frame_index]
+        self.respawn = False
+
         self.image = pygame.Surface((tile_size, tile_size * 1.5))
         self.image.fill((255, 88, 98))
+
+        # - rect and lights -
         self.rect = pygame.Rect(spawn.x, spawn.y, self.image.get_width(), self.image.get_height())
         self.light_distance = 40
-        self.lights = [Light(self.rect.center, (20, 20, 20), 25, 20, 0.02),
-                       Light(self.rect.center, (10, 10, 10), 40, 30, 0.02)]
+        self.lights = [Light(self.surface, self.rect.center, (10, 10, 10), False, 40, 30, 0.02),
+                       Light(self.surface, self.rect.center, (20, 20, 20), False, 25, 20, 0.02)]
         # - hitboxes -
         self.norm_hitbox = pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 1.4)  # used for collisions
         self.crouch_hitbox = pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 0.8)  # used for crouched collisions
-        self.hitbox = self.norm_hitbox  # used for collisiona and can be different to rect and image
-
-        if spawn.player_facing == 'right':
-            self.facing_right = 1
-        else:
-            self.facing_right = -1
-        self.respawn = False
+        self.hitbox = self.norm_hitbox  # used for collisions and can be different to rect and image
 
         # -- player movement --
         self.direction = pygame.math.Vector2(0, 0)  # allows cleaner movement by storing both x and y direction
-        # collisions -- provides a buffer allowing late collision (must be higher than max velocity to prevent phasing)
+        # collisions -- provides a buffer allowing late collision
         self.collision_tolerance = tile_size
         self.corner_correction = 8  # tolerance for correcting player on edges of tiles (essentially rounded corners)
-        self.vertical_corner_correction_boost = 3
+        self.vertical_corner_correction_boost = 4
 
         # - walk -
-        self.speed_x = 2.5 # 147
+        self.speed_x = 2.5
         self.right_pressed = False
         self.left_pressed = False
 
         # - dash -
         self.dashing = False  # NOT REDUNDANT. IS NECCESSARY. Allows resetting timer while dashing. Also more readable code
         self.dash_speed = 4
-        self.dash_pressed = False  # if the dash key is being pressed
+        self.dash_pressed = False
         self.dash_max = 12  # max time of dash in frames
         self.dash_timer = self.dash_max  # maxed out to prevent being able to dash on start. Only reset on ground
         self.dash_dir_right = True  # stores the dir for a dash. Prevents changing dir during dash. Only dash cancels
@@ -56,10 +69,10 @@ class Player(pygame.sprite.Sprite):
         self.on_ground = False
         self.fall_timer = 0  # timer for how long the player has had a positive y vel and not on ground
         # - terminal vel -
-        self.norm_terminal_vel = 10  # normal terminal vel
+        self.norm_terminal_vel = 10
         self.terminal_vel = self.norm_terminal_vel  # maximum fall speed. if higher than self.collision_tolerance, will allow phasing :(
         # - gravity -
-        self.gravity = 0.4 # 24
+        self.gravity = 0.4
         self.fall_gravity = 1
 
         # -- Jump --
@@ -76,6 +89,7 @@ class Player(pygame.sprite.Sprite):
         # - coyote time -
         self.coyote_timer = 0  # times the frames since left the floor
         self.coyote_max = 5  # maximum time for a coyote jump to occur
+
         # - buffer jump -
         self.jumpbuff_max = 10  # max time a buffered jump can be cued before it is removed (in frames)
 
@@ -84,17 +98,22 @@ class Player(pygame.sprite.Sprite):
         # if jump timer == 0, means button has just been pressed. Used to ensure button isnt being held
         # if jump timer > 0 and not on_ground, means player is jumping or falling after jump
         # if jump timer == 0 in air, buffer jump has been cued up
+        # if jump timer < timer_max, provides a window for input to be processed rather than exactly == 0
         # (starts on max to prevent buffer jump being cued on start)
 
         # -- Wall slide/jump --
         self.on_wall = False
-        self.on_wall_right = False
+        self.can_wall_jump = True
+        self.on_wall_right = -1  # used to multiply wall x offset to change direction
         self.wall_jump_speed = 7  # wall jump upwards speed
         self.wall_kick_speed = 15  # horizontal velocity gained away from wall when wall jumping
-        self.wall_term_vel = 2  # maxiumum fall (slide) speed when on a wall
+        self.wall_term_vel = 2  # maximum fall (slide) speed when on a wall
+        self.extended_wall_jumps = False
         # - sticky wall -
         self.sticky_wall_timer = 0
         self.sticky_wall_max = 5
+        # - buffer wall jump -
+        self.wall_jumpbuff_max = 7  # max time a buffered wall jump can be cued before it is removed (in frames)
 
         # -- Glide --
         self.gliding = False
@@ -107,9 +126,36 @@ class Player(pygame.sprite.Sprite):
         self.crouching = False
         self.crouch_speed = 1  # speed of walk when crouching
 
+# -- imports --
+
+    # imports all character animations from folders
+    '''def import_character_animations(self, animations):
+        animations_path = '../assets/player/animations/'
+        # dictionary keys are the same name as folder
+        
+        # ONLY IMAGES IN FOLDERS!!!!
+
+        # retrieve assets
+        for animation in animations.keys():
+            full_path = animations_path + animation  # extends directory pointer with desired animation folder
+            animations[animation] = import_folder(full_path, 'list')
+        return animations'''
+    
+    '''def import_character_hitboxes(self, hitboxes):
+        hitboxes_path = '../assets/player/hitboxes/'
+        # dictionary keys are the same name as folder
+        
+        # ONLY IMAGES IN FOLDERS!!!!
+
+        # retrieve assets
+        for hitbox in hitboxes.keys():
+            full_path = hitboxes_path + hitbox
+            hitboxes[hitbox] = import_folder(full_path, 'surface')
+        return hitboxes'''
+
 # -- checks --
 
-    def get_input(self, tiles):
+    def get_input(self, dt, tiles):
         self.direction.x = 0
         keys = pygame.key.get_pressed()
 
@@ -121,7 +167,7 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = self.speed_x
             else:
                 self.direction.x = self.crouch_speed
-            self.facing_right = 1
+            self.facing_right = True
             self.right_pressed = True
         else:
             self.right_pressed = False
@@ -131,7 +177,7 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = -self.speed_x
             else:
                 self.direction.x = -self.crouch_speed
-            self.facing_right = -1
+            self.facing_right = False
             self.left_pressed = True
         else:
             self.left_pressed = False
@@ -142,14 +188,22 @@ class Player(pygame.sprite.Sprite):
             # if only just started dashing, dashing is true and dash direction is set. Prevents changing dash dir during dash
             if not self.dashing:
                 self.dashing = True
-                self.dash_dir_right = self.facing_right
+                # dash direction right is used to multiply dash direction to indicate direction rather than just displacement
+                if self.facing_right:
+                    self.dash_dir_right = 1
+                else:
+                    self.dash_dir_right = -1
+                # TODO fix
+                # if player is on wall, dash direction is opposite to facing to dash away from wall
+                if self.on_wall:
+                    self.dash_dir_right = -self.dash_dir_right
             self.dashbuff_timer = 0  # set to 0 ready for next buffdash
             self.dash_pressed = True
         # neccessary to prevent repeated dashes on button hold
         elif not keys[pygame.K_PERIOD] and not self.get_controller_input('dash'):
             self.dash_pressed = False
 
-        self.dash()
+        self.dash(dt)
 
         #### vertical movement ####
         # -- jump --
@@ -168,7 +222,7 @@ class Player(pygame.sprite.Sprite):
             self.jump_hold_timer = self.jump_max
             self.jump_pressed = False
 
-        self.jump()
+        self.jump(dt)
 
         # -- glide --
         # if button pressed and last frame not pressed, allow glide (prevents holding glide through jumps) can hold
@@ -188,7 +242,7 @@ class Player(pygame.sprite.Sprite):
             self.glide_pressed = False
             # terminal vel auto reset in update
 
-        self.glide()
+        self.glide(dt)
 
         # -- crouch --
         # if wanting to crouch AND on the ground (so as to avoid glide)
@@ -199,7 +253,7 @@ class Player(pygame.sprite.Sprite):
 
         self.crouch(tiles)
 
-        # TODO testing, remove
+        # TODO testing, remove #############
         if keys[pygame.K_r] or self.get_controller_input('dev'):
             self.invoke_respawn()
 
@@ -228,11 +282,11 @@ class Player(pygame.sprite.Sprite):
                         return True'''
             elif input_check == 'dash' and controller.get_button(controller_map['R2']) > 0.8:
                 return True
-            elif input_check == 'glide' and (controller.get_button(controller_map['L1']) or controller.get_hat(0)[1] == -1):
+            elif input_check == 'glide' and (controller.get_button(controller_map['L1'])):
                 return True
-            elif input_check == 'crouch' and (controller.get_hat(0)[1] == -1 or 0.2 < controller.get_axis(controller_map['left_analog_y']) <= 1):  # TODO crouch controls
+            elif input_check == 'crouch' and (controller.get_hat(0)[1] == -1 or controller.get_button(controller_map['L1'])):  # TODO crouch controls
                 return True
-            # TODO testing, remove
+                # TODO testing, remove ################
             elif input_check == 'dev' and controller.get_button(controller_map['right_analog_press']):
                 return True
         return False
@@ -262,7 +316,7 @@ class Player(pygame.sprite.Sprite):
 
 # -- movement methods --
 
-    def dash(self):
+    def dash(self, dt):
         # - reset -
         # reset dash, on ground OR if on the wall and dash completed (not dashing) - allows dash to finish before clinging
         # reset despite button pressed or not (not dependant on button, can only dash with button not pressed)
@@ -274,14 +328,14 @@ class Player(pygame.sprite.Sprite):
         if self.on_ground and self.dashbuff_timer < self.dashbuff_max and not self.crouching:
             self.dashing = True
         # - start normal dash or continue dash - (only when not crouching)
-        # (if dashing and dash duration not exceeded OR buffered dash) AND not crouching, allow dash
+        # (if dashing and dash duration not exceeded OR buffered dash) AND not crouching AND not on wall, allow dash
         if self.dashing and self.dash_timer < self.dash_max and not self.crouching:
             # - norm dash -
             # add velocity based on facing direction determined at start of dash
             # self.dash_dir_right multiplies by 1 or -1 to change direction of dash speed distance
             self.direction.x += self.dash_speed * self.dash_dir_right
             # dash timer increment
-            self.dash_timer += 1
+            self.dash_timer += round(1 * dt)
 
             # - buffer -
             # reset buffer jump with no jump cued
@@ -296,41 +350,48 @@ class Player(pygame.sprite.Sprite):
         # cue up dash if dash button pressed (if dash is already allowed it will be maxed out in the dash code)
         # OR having already cued, continue timing
         if (self.dashbuff_timer == 0) or self.buffer_dash:
-            self.dashbuff_timer += 1
+            self.dashbuff_timer += round(1 * dt)
             self.buffer_dash = True
 
     # physics maths from clearcode platformer tut (partly)
-    def jump(self):
+    def jump(self, dt):
         # -- coyote time --
         if self.on_ground:
             self.coyote_timer = 0  # resets timer on the ground
         else:
-            self.coyote_timer += 1  # increments when not on the ground
+            self.coyote_timer += round(1 * dt)  # increments when not on the ground
 
         # - reset -
         if self.on_ground:
             self.jumping = False
         if self.on_ground or self.on_wall:
             self.can_double_jump = True
+        if not self.jump_pressed:
+            self.can_wall_jump = True
 
         # - wall jump -
         # before normal jump. Prevents double jump being checked before wall jump (BAD: infinite double jumps up walls)
-        # if on the wall and wanting to jump + not holding the jump button, allow wall jump
-        if self.on_wall and self.jump_timer == 0:
+        # if on wall
+        # input within jump window
+        # not on the ground (so ground jump takes prescendence over wall jump)
+        # allowed to wall jump (button has been lifted since last wall jump)
+        # wanting jump (jump pressed)
+        if self.on_wall and self.jump_timer < self.wall_jumpbuff_max and not \
+                self.on_ground and self.can_wall_jump and self.jump_pressed:
             self.direction.y = -self.wall_jump_speed
             # sideways kick off, thrust opposite facing dir.
             # = rather than += to prevent dash interfering with jump, also cancel dash
-            self.direction.x = self.wall_kick_speed * -self.facing_right
+            self.direction.x = self.wall_kick_speed * -self.on_wall_right
             self.dashing = False
-            # TODO self.jumping = True (wall jump)
+            self.can_wall_jump = False
+            if self.extended_wall_jumps:
+                self.jumping = True  # (wall jump)
 
         # - execute initial hop and allow jump extension (norm, buffer and coyote) -
-        # if on the ground and want to jump
-        # OR on the ground and within buffer jump window,
+        # if grounded and want jump (timer == 0) OR grounded and within buffer jump window (timer < max)
         # OR within coyote time window and want to jump
         # OR double jump
-        elif (self.on_ground and self.jump_timer == 0) or \
-                (self.on_ground and self.jump_timer < self.jumpbuff_max) or \
+        elif (self.on_ground and self.jump_timer < self.jumpbuff_max) or \
                 (self.jump_timer == 0 and self.coyote_timer < self.coyote_max) or \
                 (self.jump_timer == 0 and self.can_double_jump):
 
@@ -358,8 +419,8 @@ class Player(pygame.sprite.Sprite):
         elif self.jumping and self.jump_hold_timer < self.jump_max and self.jump_pressed:
             self.direction.y = -self.jump_speed
 
-        self.jump_timer += 1  # increments the timer (time since jump input if jump hasnt been executed yet)
-        self.jump_hold_timer += 1  # increments timer (time jump has been held for)
+        self.jump_timer += round(1 * dt)  # increments the timer (time since jump input if jump hasnt been executed yet)
+        self.jump_hold_timer += round(1 * dt)  # increments timer (time jump has been held for)
 
     def crouch(self, tiles):
         if self.crouching:
@@ -378,7 +439,7 @@ class Player(pygame.sprite.Sprite):
                         self.crouching = True
                         break
 
-    def glide(self):
+    def glide(self, dt):
         # resets glide if grounded. Prevents multiple full length glides in one flight
         # Can reset even if button is held.
         if self.on_ground or self.on_wall:
@@ -387,7 +448,7 @@ class Player(pygame.sprite.Sprite):
         # if glide hasn't exceeded max time and falling and allowed to glide and not on wall (also not on ground from if statement),
         # continue to glide
         elif self.glide_timer < self.glide_max and self.direction.y > 0 and self.gliding:
-            self.glide_timer += 1
+            self.glide_timer += round(1 * dt)
             self.terminal_vel = self.glide_terminal_vel
         # ends self.gliding if glide has ended (terminal vel auto reset in update)
         elif self.glide_timer >= self.glide_max or not self.gliding:
@@ -412,10 +473,10 @@ class Player(pygame.sprite.Sprite):
                 # not having collisions dependant on status allows hitboxes to change size
                 if abs(tile.hitbox.right - hitbox.left) < self.collision_tolerance:
                     collision_offset[0] = tile.hitbox.right - hitbox.left
-                    self.on_wall_right = False  # which side is player clinging?
+                    self.on_wall_right = -1  # player touching on left
                 elif abs(tile.hitbox.left - hitbox.right) < self.collision_tolerance:
                     collision_offset[0] = tile.hitbox.left - hitbox.right
-                    self.on_wall_right = True  # which side is player clinging?
+                    self.on_wall_right = 1  # player touching on right
 
                 # - wall cling - (self.on_wall_right above)
                 # if not crouching, allow wall clinging
@@ -530,23 +591,24 @@ class Player(pygame.sprite.Sprite):
         else:
             # if falling, apply more gravity than if moving up
             if self.direction.y > 0:
-                self.direction.y += self.fall_gravity
+                self.direction.y += self.fall_gravity * dt
             else:
-                self.direction.y += self.gravity
+                self.direction.y += self.gravity * dt
 
         # -- terminal velocity --
+        # must be constant despite fps (cap on y vel). Therefore applied after dt application
         if self.direction.y > self.terminal_vel:
             self.direction.y = self.terminal_vel
 
         # -- fall timer --
         # if falling in the air, increment timer else its 0
         if self.direction.y > 0 and not self.on_ground:
-            self.fall_timer += 1
+            self.fall_timer += round(1 * dt)
         else:
             self.fall_timer = 0
 
         # -- apply y direction and sync --
-        self.rect.y += int(self.direction.y)
+        self.rect.y += round(self.direction.y * dt)
         self.sync_hitbox()
 
     # syncs the player's current and stored hitboxes with the player rect for proper collisions. For use after movement of player rect.
@@ -560,8 +622,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.midbottom = self.hitbox.midbottom
 
     def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[1])
-        self.rect.y -= int(scroll_value[0])
+        self.rect.x -= int(scroll_value[0])
+        self.rect.y -= int(scroll_value[1])
         self.sync_hitbox()
 
     def update(self, dt, tiles, scroll_value, current_spawn):
@@ -575,21 +637,16 @@ class Player(pygame.sprite.Sprite):
             self.player_respawn(current_spawn)
 
         # -- INPUT --
-        self.get_input(tiles)
+        self.get_input(dt, tiles)
 
         # -- CHECKS/UPDATE --
-        # - general -
-
-        # light
-        for light in self.lights:
-            light.update()
 
         # - collision and movement -
         # applies direction to player then resyncs hitbox (included in most movement/collision functions)
         # HITBOX MUST BE SYNCED AFTER EVERY MOVE OF PLAYER RECT
         # x and y collisions are separated to make diagonal collisions easier and simpler to handle
         # x
-        self.rect.x += int(self.direction.x)
+        self.rect.x += round(self.direction.x * dt)
         self.sync_hitbox()
         self.collision_x(self.hitbox, tiles)
 
@@ -609,18 +666,15 @@ class Player(pygame.sprite.Sprite):
         # scroll shouldn't have collision applied, it is separate movement
         self.apply_scroll(scroll_value)
 
+        # light (after movement and scroll so pos is accurate)
+        for light in self.lights:
+            light.update(dt, self.rect.center, tiles)
+
 # -- visual methods --
 
-    def player_light(self, tiles):
-        for deg in range(0, 360, 10):
-            dot = raycast(deg, self.rect.center, self.light_distance, tiles)
-            pygame.draw.circle(self.surface, 'red', dot, 1)
-
-    def draw(self, tiles):
+    def draw(self):
         for light in self.lights:
-            light.draw(self.surface, self.rect.center)
-
-        self.player_light(tiles)
+            light.draw()
 
         self.surface.blit(self.image, self.rect)
 

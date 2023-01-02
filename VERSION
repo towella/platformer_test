@@ -1,4 +1,4 @@
-VERSION 4 - PROTOTYPE:
+VERSION 5 - PROTOTYPE:
 
 Versions:
 - Python: 3.7.9 (for controller input with pygame and ease of use w/ pyinstaller)
@@ -11,14 +11,16 @@ Versions:
 Includes:
 - NO animation
 
+- placeholder game icon
+
 - ability to create app with pyinstaller
 - controller input
 - pixel perfect display for pixel art (art pixels == to game pixels)
 - fullscreen capability without screen tearing
-- working collision detection with NEW corner correction (essentially rounded tile corners)
-- NEW support for pause menu
+- working collision detection with corner correction (essentially rounded tile corners)
+- support for pause menu
 
-- NEW additional support functions
+- additional support functions
     - load assets
     - procedural pixel art
     - utilities
@@ -29,17 +31,18 @@ Includes:
     - transition based spawn point objects that tell the player what direction to face
     - trigger/spawn system for within room spawn points
     - live updates on rooms (move between transitions to update)
+    - continuing to read docs for more ease of use
 
-- working but unfinished camera
+- mostly working but unfinished camera
 	- interpolated horizontal and vertical
 	- target system for offsetting
 	- falling and horizontal offsetting with target
 	- manual up/down pan controls
-	- NEW unfinished camera boundaries
+	- unfinished camera boundaries
+	- basic zoom system (only zoom to center of screen with lag)
 
-- NEW text system
-- NEW lighting system
-- UNFINISHED raycast lighting system
+- text system
+- lighting system
 - UNFINISHED delta time movement
 
 - working walk and gravity/terminal velocity
@@ -50,29 +53,31 @@ Includes:
 - 2 directional dash with fixed direction
 - buffered dashing
 - glide
-- NEW crouch with slowed down speed, forced crouch under platforms and preventing dash and wall cling/jumps when crouching
+- crouch with slowed down speed, forced crouch under platforms and preventing dash and wall cling/jumps when crouching
 - in progress wall climb
 
 - contact with hazards cause player respawn at latest respawn point
 
 
 Controls:
+- F: activate/disable fullscreen
+- P/options: pause
 - A/Left joystick left/D-pad left: left
 - D/left joystick right/D-pad right: right
 - W/Space/X button: jump
     - (hold): higher jump
     - (on wall): wall jump *unfinished*
     - (in air): double jump
-- S/D-pad down/L1 (in air): glide
+- S/L1 (in air): glide
+- S/D-pad down/L1 (on ground): crouch
 - Period/R2: dash
-- S/D-pad down (on ground): crouch
 - UP arrow/right joystick up (on ground): pan camera up
 - DOWN arrow/right joystick down (on ground): pan camera down
-- P/options: pause
-- Comma/press left joystick: Instant quit
 
 
 Dev Tools:
+- Comma/press left joystick: Instant quit
 - X: switch fps from 60 to 20 and back
-- Z/share: (show)/ Shift+Z/share+X button (hide): display hitboxes, screen centre, camera target, spawn points/triggers, room transitions
+- Z/share (show)/ Shift+Z/share+X button (hide): display hitboxes, screen centre, camera target, spawn points/triggers, room transitions
 - R/press right joystick: instant respawn at last spawn point
+- C (in)/ Shift+C (out): zoom

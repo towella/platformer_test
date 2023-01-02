@@ -1,0 +1,61 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+        "assets/tiles/tile_set_template",
+        "rooms",
+        ".",
+        "assets/tiles"
+    ],
+    "fileStates": {
+        "assets/tiles/tile_set_template/tile_set_template.tsx": {
+            "scaleInDock": 1.6736,
+            "scaleInEditor": 2.33
+        },
+        "rooms/room_0.tmx": {
+            "expandedObjectLayers": [
+                8,
+                7
+            ],
+            "scale": 0.66,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 631.060606060606,
+                "y": 518.1818181818182
+            }
+        },
+        "rooms/room_1.tmx": {
+            "expandedObjectLayers": [
+                3,
+                4
+            ],
+            "scale": 0.9537109374999999,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 280.48330944091754,
+                "y": 176.1540036862585
+            }
+        },
+        "rooms/room_2.tmx": {
+            "expandedObjectLayers": [
+                6,
+                5
+            ],
+            "scale": 0.69,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 354.3478260869566,
+                "y": 240.57971014492756
+            }
+        }
+    },
+    "openFiles": [
+    ],
+    "project": "untitled.tiled-project",
+    "property.type": "object",
+    "recentFiles": [
+        "rooms/room_0.tmx",
+        "assets/tiles/tile_set_template/tile_set_template.tsx",
+        "rooms/room_2.tmx",
+        "rooms/room_1.tmx"
+    ]
+}

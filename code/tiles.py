@@ -14,8 +14,8 @@ class StaticTile(pygame.sprite.Sprite):
 
     # allows all tiles to scroll at a set speed creating camera illusion
     def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[1])
-        self.rect.y -= int(scroll_value[0])
+        self.rect.x -= int(scroll_value[0])
+        self.rect.y -= int(scroll_value[1])
 
     # scroll is separate to update, giving control to children of Tile class to override update
     def update(self, scroll_value):
@@ -36,8 +36,8 @@ class CollideableTile(StaticTile):
 
     # allows all tiles to scroll at a set speed creating camera illusion
     def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[1])
-        self.rect.y -= int(scroll_value[0])
+        self.rect.x -= int(scroll_value[0])
+        self.rect.y -= int(scroll_value[1])
         self.hitbox.midbottom = self.rect.midbottom
 
 

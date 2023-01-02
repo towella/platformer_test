@@ -124,11 +124,12 @@ def circle_surf(radius, colour):
 
 
 # -- physics --
-# TODO should be a class??
+# TODO refactor and optimise raycast algortihm
 def raycast(angle, pos, max_distance, tiles):
     angle = angle * math.pi / 180  # angle of the raycast in RADIANS
     x = 0
     y = 0
+    max_distance = round(max_distance)
     # stepping by 2 introduces margin of error +-2px but also reduces load on checks
     for hyp in range(0, max_distance, 2):
         # we know theta (dir) and we're trying to find the x and y values for the given point on the ray.
@@ -143,6 +144,31 @@ def raycast(angle, pos, max_distance, tiles):
 
 # -- utilities --
 
+def get_rect_corners(rect):
+    return [rect.topleft, rect.topright, rect.bottomright, rect.bottomleft]
+
+
+# returns angle of point from pos in DEGREES
+def get_angle(pos, point):
+    angle = math.atan2(point[1] - pos[1], point[0] - pos[0])
+    angle *= 180 / math.pi  # converts to degrees
+
+    # makes the angle produced by tan in any qudarant relative to 0 DEG and positive.
+    if angle < 0:
+        angle = 180 + angle
+    if pos[1] - point[1] < 0:
+        angle += 180
+
+    return angle
+
+
+def get_distance(pos, point):
+    x = point[0] - pos[0]
+    y = point[1] - pos[1]
+    return abs(math.hypot(x, y))
+
+
+# crops a surface out of a larger surface (usefull for images)
 def crop(surf, x, y, x_size, y_size):
     handle_surf = surf.copy()
     clipR = pygame.Rect(x, y, x_size, y_size)
@@ -151,11 +177,13 @@ def crop(surf, x, y, x_size, y_size):
     return image.copy()
 
 
+# centers an object with a given width on the x axis on a given surface
 def center_object_x(width_obj, surf):
     x = surf.get_width()//2 - width_obj//2
     return x
 
 
+# converts a position refering to topleft to be applicable to surface's center
 def pos_for_center(surf, pos):
     x = int(surf.get_width() / 2)
     y = int(surf.get_height() / 2)

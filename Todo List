@@ -1,26 +1,30 @@
 Todo List:
 
+NOTES FAQ:
+o sRGB warning - open png w/ photoshop > File > Save As > Untick ICC Profile: sRGB IEC61966-2.1 > overwrite file
+
+
 -- Camera --
 o walking horizontal offset
-o repawn target needs offset
-o Smooth camera ease into stopped player
-o target focus doesnt always work (related to camera bounds?), camera boundaries issues on spawn and jump dash through transitions
+o target focus doesnt always work (related to camera bounds?)
+o camera boundaries issues on spawn
 o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
+o zoom on custom point rather than only center of screen
+o zoom drops frame rate fix
+o change or remove vertical offset if player is 'falling' on a wall
+
 
 -- Player --
-o investigate player TODOs *******
-o ensure commenting is accurate and OK ****
+o ensure commenting is accurate ****
 
 o double check efficiency and setup of lighting system
     - sprite group?
     - add raycasting?
 
 wall slide
-o wall jump offset jerky and breaks collision detection :(
-o dash into wall on wall can be used to prevent slide infinitely
-o wall jump buffer??
-o wall jump takes prescendence over normal jump
+o dash into wall on wall can be used to prevent slide infinitely (dont allow dash if on wall and (on wall right == facing right)
+o wall jump cooldown timer
 
 controls
 o Inaccurate movement features (sticky walls, dash reset early?) **
@@ -28,12 +32,10 @@ o see Celeste game feel twitter thread
 o delta time movement
 o forces based movement
 
--- Level --
-o sRGB warning
-o kill level instance properly
 
--- general --
-o resolution
+-- room --
+respawn is now janky with new setup (see previous frame before respawn after respawn??)
+
 
 #### LARGE SCALE DIRECTION ####
 IMPLEMENT DICTIONARIES for efficiency
@@ -41,4 +43,3 @@ Implement chunk system
 
 o animation
 o paralax scrolling
-o camera zoom functionality
