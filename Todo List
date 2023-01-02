@@ -2,16 +2,19 @@ Todo List:
 
 -- Camera --
 o walking horizontal offset
-o respawn target starts with offset
+o repawn target needs offset
 o Smooth camera ease into stopped player
-o target focus doesnt always work (related to camera bounds?)
+o target focus doesnt always work (related to camera bounds?), camera boundaries issues on spawn and jump dash through transitions
 o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
-o camera boundaries issues on spawn and jump dash through transitions
 
 -- Player --
 o investigate player TODOs *******
 o ensure commenting is accurate and OK ****
+
+o double check efficiency and setup of lighting system
+    - sprite group?
+    - add raycasting?
 
 wall slide
 o wall jump offset jerky and breaks collision detection :(
@@ -21,14 +24,16 @@ o wall jump takes prescendence over normal jump
 
 controls
 o Inaccurate movement features (sticky walls, dash reset early?) **
-
+o see Celeste game feel twitter thread
+o delta time movement
+o forces based movement
 
 -- Level --
 o sRGB warning
 o kill level instance properly
-o clean spawn points
-o respawn player facing correct direction
 
+-- general --
+o resolution
 
 #### LARGE SCALE DIRECTION ####
 IMPLEMENT DICTIONARIES for efficiency
@@ -36,3 +41,4 @@ Implement chunk system
 
 o animation
 o paralax scrolling
+o camera zoom functionality

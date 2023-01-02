@@ -1,12 +1,12 @@
 # pyinstaller code/main.py code/camera.py code/game_data.py code/player.py code/room.py code/spawn.py code/support.py code/tiles.py code/trigger.py --onefile --noconsole
 
 
-
 # screen resizing tut, dafluffypotato: https://www.youtube.com/watch?v=edJZOQwrMKw
 
-import pygame, sys
+import pygame, sys, time
 from room import Room
-from game_data import rooms, controller_map, screen_width, screen_height
+from text import Font
+from game_data import *
 
 # General setup
 pygame.mixer.pre_init(44100, 16, 2, 4096)
@@ -21,7 +21,7 @@ game_speed = 60
 # placed on and then resized to blit on the window. Allowing larger pixels (art pixel = game pixel)
 # https://stackoverflow.com/questions/54040397/pygame-rescale-pixel-size
 
-scaling_factor = 2.7  # how much the screen is scaled up before bliting on display (2.7 good)
+scaling_factor = 3.4  # how much the screen is scaled up before bliting on display
 
 # https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode
 # https://www.reddit.com/r/pygame/comments/r943bn/game_stuttering/
@@ -44,6 +44,9 @@ print(f"joy {len(joysticks)}")
 for joystick in joysticks:
     joystick.init()
 
+# font
+font = Font(fonts['small_font'], 'white')
+
 
 def main_menu():
     game()
@@ -51,11 +54,16 @@ def main_menu():
 
 def game():
     click = False
+    previous_time = time.time()
     previous_room = 'room_0'
     room = Room(rooms[previous_room], screen, screen_rect, joysticks, previous_room)
 
     running = True
     while running:
+        # delta time
+        dt = time.time() - previous_time
+        previous_time = time.time()
+        print(dt)
 
         # x and y mouse pos
         mx, my = pygame.mouse.get_pos()
@@ -97,13 +105,16 @@ def game():
                     sys.exit()
 
         # -- Update --
-        screen.fill((69, 105, 144))
-        room.run()  # runs level processes
+        screen.fill((15, 0, 34))
+        room.update(dt)  # runs level processes
         # if player has hit a room transition in the room, change the active room
         room_transition = room.room_transitions()
         if room_transition:
             room = Room(rooms[room_transition], screen, screen_rect, joysticks, previous_room)
             previous_room = room_transition  # updates previous room
+
+        font.render(f'FPS: {str(clock.get_fps())}', screen, (0, 0))
+
         window.blit(pygame.transform.scale(screen, window.get_rect().size), (0, 0))  # scale screen to window
 
         # -- Render --

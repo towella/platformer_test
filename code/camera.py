@@ -64,9 +64,9 @@ class Camera():
     def get_controller_input(self, input_check):
         if len(self.controllers) >= 1:
             controller = self.controllers[0]
-            if input_check == 'look_down' and 0.8 < controller.get_axis(controller_map['left_analog_y']) <= 1:
+            if input_check == 'look_down' and 0.8 < controller.get_axis(controller_map['right_analog_y']) <= 1:
                 return True
-            elif input_check == 'look_up' and -0.8 > controller.get_axis(controller_map['left_analog_y']) >= -1:
+            elif input_check == 'look_up' and -0.8 > controller.get_axis(controller_map['right_analog_y']) >= -1:
                 return True
         return False
 

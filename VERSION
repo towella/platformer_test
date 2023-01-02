@@ -1,4 +1,4 @@
-VERSION 3 - PROTOTYPE:
+VERSION 4 - PROTOTYPE:
 
 Versions:
 - Python: 3.7.9 (for controller input with pygame and ease of use w/ pyinstaller)
@@ -11,12 +11,19 @@ Versions:
 Includes:
 - NO animation
 
-- NEW ability to create app with pyinstaller (changes to pytmx)
-- NEW controller input
+- ability to create app with pyinstaller
+- controller input
 - pixel perfect display for pixel art (art pixels == to game pixels)
 - fullscreen capability without screen tearing
-- working collision detection
-- improved level design capability with tiled (CUSTOM pytmx implementation for use with pyinstaller)
+- working collision detection with NEW corner correction (essentially rounded tile corners)
+- NEW support for pause menu
+
+- NEW additional support functions
+    - load assets
+    - procedural pixel art
+    - utilities
+
+- level design capability with tiled
     - including pulling tile positioning and graphics from a tmx file without referencing additional image or csv files
     - linkable level transition objects
     - transition based spawn point objects that tell the player what direction to face
@@ -30,14 +37,20 @@ Includes:
 	- manual up/down pan controls
 	- NEW unfinished camera boundaries
 
+- NEW text system
+- NEW lighting system
+- UNFINISHED raycast lighting system
+- UNFINISHED delta time movement
+
 - working walk and gravity/terminal velocity
-- simplified variable height jump
-- simplified buffered jumping
-- simplified coyote time jump
-- working double jump
-- working 2 directional dash with fixed direction
-- working buffered dashing
-- working glide
+- variable height jump
+- buffered jumping
+- coyote time jump
+- double jump
+- 2 directional dash with fixed direction
+- buffered dashing
+- glide
+- NEW crouch with slowed down speed, forced crouch under platforms and preventing dash and wall cling/jumps when crouching
 - in progress wall climb
 
 - contact with hazards cause player respawn at latest respawn point
@@ -52,13 +65,14 @@ Controls:
     - (in air): double jump
 - S/D-pad down/L1 (in air): glide
 - Period/R2: dash
-- UP arrow/left joystick up (on ground): pan camera up
-- DOWN arrow/left joystick down (on ground): pan camera down
+- S/D-pad down (on ground): crouch
+- UP arrow/right joystick up (on ground): pan camera up
+- DOWN arrow/right joystick down (on ground): pan camera down
 - P/options: pause
 - Comma/press left joystick: Instant quit
 
 
 Dev Tools:
 - X: switch fps from 60 to 20 and back
-- Z/share: (show)/ Shift+Z/share+X button (hide): display hitboxes, screen centre, camera target, spawn points, room transitions
+- Z/share: (show)/ Shift+Z/share+X button (hide): display hitboxes, screen centre, camera target, spawn points/triggers, room transitions
 - R/press right joystick: instant respawn at last spawn point

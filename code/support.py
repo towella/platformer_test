@@ -1,7 +1,9 @@
-import pygame, os, sys
+import pygame, os, sys, math
 from csv import reader
 from game_data import tile_size
 
+
+# -- import functions --
 
 # allows paths to be used for both normal running in PyCharm and as an .exe
 def resource_path(relative_path):
@@ -77,6 +79,87 @@ def import_cut_graphics(path, art_tile_size):
             cut_tiles.append(new_surface)
 
     return cut_tiles
+
+
+# -- procedural pixel art --
+
+def swap_colour(img, old_c, new_c):
+    img.set_colorkey(old_c)
+    surf = img.copy()
+    surf.fill(new_c)
+    surf.blit(img, (0, 0))
+    return surf
+
+
+def outline_image(image, colour='white'):
+    # make surf for application
+    surf = pygame.Surface((image.get_width() + 2, image.get_height() + 2))
+    surf.set_colorkey((0, 0, 0))
+
+    # create mask from image (necessary for white outlines)
+    mask = pygame.mask.from_surface(image)
+    mask_surf = mask.to_surface()
+    mask_surf.set_colorkey((0, 0, 0))
+
+    # create outline area
+    surf.blit(mask_surf, (0, 1))
+    surf.blit(mask_surf, (1, 0))
+    surf.blit(mask_surf, (1, 2))
+    surf.blit(mask_surf, (2, 1))
+
+    if colour != 'white' and colour != (255, 255, 255):
+        swap_colour(surf, 'white', colour)
+
+    # layer original image over outline
+    surf.blit(image, (1, 1))
+    return surf
+
+
+def circle_surf(radius, colour):
+    radius = int(radius)
+    surf = pygame.Surface((radius*2, radius*2))
+    pygame.draw.circle(surf, colour, (radius, radius), radius)
+    surf.set_colorkey((0, 0, 0))
+    return surf
+
+
+# -- physics --
+# TODO should be a class??
+def raycast(angle, pos, max_distance, tiles):
+    angle = angle * math.pi / 180  # angle of the raycast in RADIANS
+    x = 0
+    y = 0
+    # stepping by 2 introduces margin of error +-2px but also reduces load on checks
+    for hyp in range(0, max_distance, 2):
+        # we know theta (dir) and we're trying to find the x and y values for the given point on the ray.
+        x = math.cos(angle) * hyp  # cos returns ratio from radians
+        y = -(math.sin(angle) * hyp)  # sin returns ratio from radians. Y must be negative because pygame axis is flipped
+        for tile in tiles:
+            if tile.hitbox.collidepoint((pos[0] + x, pos[1] + y)):
+                return (pos[0] + x, pos[1] + y)  # returns collision point
+
+    return (pos[0] + x, pos[1] + y)  # returns maximum coordinate value for ray
+
+
+# -- utilities --
+
+def crop(surf, x, y, x_size, y_size):
+    handle_surf = surf.copy()
+    clipR = pygame.Rect(x, y, x_size, y_size)
+    handle_surf.set_clip(clipR)
+    image = surf.subsurface(handle_surf.get_clip())
+    return image.copy()
+
+
+def center_object_x(width_obj, surf):
+    x = surf.get_width()//2 - width_obj//2
+    return x
+
+
+def pos_for_center(surf, pos):
+    x = int(surf.get_width() / 2)
+    y = int(surf.get_height() / 2)
+    return [pos[0] - x, pos[1] - y]
 
 
 def scale_hitbox(hitbox_image, scaleup):

@@ -2,8 +2,8 @@
 import pygame
 from pytmx.util_pygame import load_pygame  # allows use of tiled tile map files for pygame use
 # - general -
-from game_data import tile_size, controller_map
-from support import resource_path
+from game_data import tile_size, controller_map, fonts
+from support import *
 # - tiles -
 from tiles import CollideableTile, HazardTile
 # - objects -
@@ -12,6 +12,7 @@ from trigger import Trigger
 from spawn import Spawn
 # - systems -
 from camera import Camera
+from text import Font
 
 
 class Room:
@@ -46,6 +47,7 @@ class Room:
 
         # get tiles
         self.collideable = self.create_tile_group(tmx_data, 'collideable', 'CollideableTile')
+        self.tiles_in_screen = []
         self.hazards = self.create_tile_group(tmx_data, 'hazards', 'HazardTile')  # TODO hazard, what type?
         self.abs_camera_boundaries = {}
         self.abs_camera_boundaries['x'] = self.create_tile_group(tmx_data, 'abs camera boundaries x', 'CollideableTile')
@@ -57,6 +59,10 @@ class Room:
         scroll_value = self.camera.return_scroll()  # returns scroll, now focused
         self.player.sprite.apply_scroll(scroll_value)  # applies new scroll to player
         self.all_sprites.update(scroll_value)  # applies new scroll to all sprites
+
+        # text setup
+        self.small_font = Font(resource_path(fonts['small_font']), 'white')
+        self.large_font = Font(resource_path(fonts['large_font']), 'white')
 
 # -- set up room methods --
 
@@ -94,6 +100,7 @@ class Room:
             for obj in tmx_file.get_layer_by_name(layer):
                 # multiple types of object could be in layer, so checking it is correct object type (spawn)
                 if obj.type == 'spawn':
+                    # creates a dictionary containing spawn name: spawn pairs for ease and efficiency of access
                     spawn = Spawn(obj.x, obj.y, obj.name, obj.player_facing)
                     sprite_group[spawn.name] = spawn
                     self.all_sprites.add(spawn)
@@ -168,48 +175,74 @@ class Room:
             if self.dev_debug:
                 pygame.draw.rect(self.screen_surface, 'green', tile.hitbox, 1)
 
+# -- menus --
+
+    def pause_menu(self):
+        pause_surf = pygame.Surface((self.screen_surface.get_width(), self.screen_surface.get_height()))
+        pause_surf.fill((40, 40, 40))
+        self.screen_surface.blit(pause_surf, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
+        width = self.large_font.width('PAUSED')
+        self.large_font.render('PAUSED', self.screen_surface, (center_object_x(width, self.screen_surface), 20))
+
+# -------------------------------------------------------------------------------- #
+
     # updates the level allowing tile scroll and displaying tiles to screen
     # order is equivalent of layers
-    def run(self):
-        # #### INPUT > GAME > RENDER ####
+    def update(self, dt):
+        # #### INPUT > GAME(checks THEN UPDATE) > RENDER ####
+        # checks deal with previous frames interactions. Update creates interactions for this frame which is then diplayed
         player = self.player.sprite
 
         # -- INPUT --
         self.get_input()
 
-        # -- UPDATES --
+        # -- CHECKS (For the previous frame)  --
         if not self.pause:
-            # checks
 
             # scroll -- must be first, camera calculates scroll, stores it and returns it for application
             scroll_value = self.camera.return_scroll()
-            # resets focus camera, only if it has had a chance to be passed to camera
             self.camera.focus(False)
 
-            # TODO check player respawn should be after player update
             # which object should handle collision? https://gamedev.stackexchange.com/questions/127853/how-to-decide-which-gameobject-should-handle-the-collision
+
             # checks if player has collided with spawn trigger and updates spawn
-            # then checks if the player needs to respawn
             for trigger in self.spawn_triggers:
                 if player.hitbox.colliderect(trigger.hitbox):
                     self.player_spawn = self.player_spawns[trigger.name]
                     break
+
+            # checks if the player needs to respawn and therefore needs to focus on the player
             if player.get_respawn():
                 self.camera.focus(True)
 
-            # Updates -- player needs to be before tiles for scroll to function properly
-            player.update(self.collideable, scroll_value, self.player_spawn)
+            # checks which collideable tiles are in screen view.
+            # TODO in function? More tile layers included? Use for tile rendering? IF ADD MORE LAYERS, CHANGE PLAYER TILES COLLISION LAYER
+            self.tiles_in_screen = []
+            for tile in self.collideable:
+                if tile.hitbox.colliderect(self.screen_rect):
+                    self.tiles_in_screen.append(tile)
+
+        # -- UPDATES -- player needs to be before tiles for scroll to function properly
+            # TODO IF TILES_IN_SCREEN ATTR IS CHANGED TO INCLUDE MORE LAYERS, CHANGE BACK TO self.collideable HERE!!!!
+            player.update(dt, self.tiles_in_screen, scroll_value, self.player_spawn)
             self.all_sprites.update(scroll_value)
 
         # -- RENDER --
         # Draw
+        #self.player.sprite.draw(self.tiles_in_screen)
         self.draw_tile_group(self.collideable)
-        self.player.sprite.draw()
         self.draw_tile_group(self.hazards)
+        self.player.sprite.draw(self.tiles_in_screen)
+
+        # must be after other renders to ensure menu is drawn last
+        if self.pause:
+            self.pause_menu()
 
         # Dev Tools
         if self.dev_debug:
             ####### player hitbox #######
+            pygame.draw.rect(self.screen_surface, 'grey', self.player.sprite.crouch_hitbox, 1)
+            pygame.draw.rect(self.screen_surface, 'grey', self.player.sprite.norm_hitbox, 1)
             pygame.draw.rect(self.screen_surface, 'yellow', self.player.sprite.hitbox, 1)
             ####### center of screen for testing ######
             pygame.draw.line(self.screen_surface, (34, 22, 43), (self.screen_surface.get_width() // 2, 0), (self.screen_surface.get_width() // 2, self.screen_surface.get_height()), width=1)
