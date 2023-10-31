@@ -12,23 +12,19 @@ class StaticTile(pygame.sprite.Sprite):
         else:
             self.image = pygame.Surface((size[0], size[1]))  # creates tile
             self.image.fill('grey')  # makes tile grey
-        self.rect = self.image.get_rect(topleft=pos)  # postions the rect and image
-        self.parallax = parallax
+        self.rect = self.image.get_rect(topleft=pos)  # postions the rect and image and used to check on screen
+        self.parallax = parallax  # set to 1 if no parallax required
         self.screen_width = pygame.display.Info().current_w
         self.screen_height = pygame.display.Info().current_h
 
     # allows all tiles to scroll at a set speed creating camera illusion
-    def apply_scroll(self, scroll_value, use_parallax=False):
-        if use_parallax:
-            self.rect.x -= int(scroll_value[0] * self.parallax[0])
-            self.rect.y -= int(scroll_value[1] * self.parallax[1])
-        else:
-            self.rect.x -= int(scroll_value[0])
-            self.rect.y -= int(scroll_value[1])
+    def apply_scroll(self, scroll_value):
+        self.rect.x -= int(scroll_value[0] * self.parallax[0])
+        self.rect.y -= int(scroll_value[1] * self.parallax[1])
 
     # scroll is separate to update, giving control to children of Tile class to override update
-    def update(self, scroll_value, use_parallax=False):
-        self.apply_scroll(scroll_value, use_parallax)
+    def update(self, scroll_value):
+        self.apply_scroll(scroll_value)
 
     def draw(self, screen, screen_rect):
         # if the tile is within the screen, render tile
@@ -42,15 +38,14 @@ class CollideableTile(StaticTile):
         super().__init__(pos, size, parallax)  # passing in variables to parent class
         self.image = surface  # image is passed tile surface
         self.hitbox = self.image.get_rect()
+        self.pos = [pos[0], pos[1]]  # allows for float coordinates for parallax moving
 
     # allows all tiles to scroll at a set speed creating camera illusion
-    def apply_scroll(self, scroll_value, use_parallax=False):
-        if use_parallax:
-            self.rect.x -= int(scroll_value[0] * self.parallax[0])
-            self.rect.y -= int(scroll_value[1] * self.parallax[1])
-        else:
-            self.rect.x -= int(scroll_value[0])
-            self.rect.y -= int(scroll_value[1])
+    def apply_scroll(self, scroll_value):
+        self.pos[0] -= scroll_value[0] * self.parallax[0]
+        self.pos[1] -= scroll_value[1] * self.parallax[1]
+        self.rect.x = self.pos[0]
+        self.rect.y = self.pos[1]
         self.hitbox.midbottom = self.rect.midbottom
 
 
@@ -59,10 +54,10 @@ class HazardTile(CollideableTile):
         super().__init__(pos, size, parallax, surface)
         self.player = player
 
-    def update(self, scroll_value, use_parallax=False):
+    def update(self, scroll_value):
         if self.hitbox.colliderect(self.player.hitbox):
             self.player.invoke_respawn()
-        self.apply_scroll(scroll_value, use_parallax)
+        self.apply_scroll(scroll_value)
 
 
 # animated tile that can be assigned images from a folder to animate

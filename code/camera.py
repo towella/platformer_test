@@ -50,6 +50,8 @@ class Camera():
         self.collision_tolerance_x = self.screen_width // 2
         self.collision_tolerance_y = self.screen_height // 2
 
+        self.camera_boundaries(True)
+
 # -- input --
 
     def get_input(self):
@@ -128,7 +130,7 @@ class Camera():
         else:
             self.fall_offset = 0
 
-    def camera_boundaries(self):
+    def camera_boundaries(self, init=False):
         # enables scroll camera boundaries
         for tile in self.abs_boundaries['x']:
             # having proxy variables allows modification of value for maths without moving actual tile pos
@@ -140,7 +142,6 @@ class Camera():
             # TODO respawn
             # TODO general bounds
             if self.collision_tolerance_x > tile_right >= self.screen_rect.left and self.scroll_value[0] < 0:
-
                 # stop scroll
                 self.scroll_value[0] = 0
                 # while the screen is in the tile, snap the screen to the tile grid.
@@ -149,8 +150,9 @@ class Camera():
                     self.scroll_value[0] += 1
                     tile_right -= 1
                 break
+
             # TODO potentially need abs?
-            elif (self.screen_rect.right - self.collision_tolerance_x) < tile_left <= self.screen_rect.right and \
+            if (self.screen_rect.right - self.collision_tolerance_x) < tile_left <= self.screen_rect.right and \
                     self.scroll_value[0] > 0:
                 self.scroll_value[0] = 0
                 while tile_left < self.screen_rect.right:
@@ -169,7 +171,7 @@ class Camera():
                     self.scroll_value[1] -= 1
                     tile_top += 1
                 break
-            elif self.collision_tolerance_y > tile_bottom >= self.screen_rect.top and self.scroll_value[1] < 0:
+            if self.collision_tolerance_y > tile_bottom >= self.screen_rect.top and self.scroll_value[1] < 0:
                 self.scroll_value[1] = 0
                 while tile_bottom > self.screen_rect.top:
                     self.scroll_value[1] += 1

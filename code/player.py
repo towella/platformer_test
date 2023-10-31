@@ -411,7 +411,8 @@ class Player(pygame.sprite.Sprite):
             self.direction.y = -self.wall_jump_speed
             # sideways kick off, thrust opposite facing dir.
             # = rather than += to prevent dash interfering with jump, also cancel dash
-            self.direction.x = self.wall_kick_speed * -self.on_wall_right
+            # // dt to counteract later * by dt. prevents dt being applied to instantaneous movement
+            self.direction.x = (self.wall_kick_speed // dt) * -self.on_wall_right
             self.dashing = False
             self.can_wall_jump = False
             if self.extended_wall_jumps:
@@ -441,7 +442,8 @@ class Player(pygame.sprite.Sprite):
 
             # - norm jump - (start the jump)
             self.on_ground = False  # neccessary to prevent direction being cancelled by gravity on ground code later in loop
-            self.direction.y = -self.jump_speed
+            # // dt to counteract later * by dt. prevents dt being applied to instantaneous movement
+            self.direction.y = -self.jump_speed // dt
             self.jumping = True  # verifies that a jump is in progress
 
         # - extend jump (variable height) -

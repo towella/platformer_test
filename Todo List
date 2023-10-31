@@ -14,7 +14,6 @@ o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
 o zoom on custom point rather than only center of screen
 o zoom drops frame rate fix
-o change or remove vertical offset if player is 'falling' on a wall
 
 
 -- Player --
@@ -38,7 +37,6 @@ o forces based movement
 
 -- room --
 o respawn is now janky with new setup (see previous frame before respawn after respawn??)
-o fix travelling parallax bug (objects drift)
 o reset parallax layers on respawn to original position
 
 

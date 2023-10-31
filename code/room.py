@@ -306,8 +306,8 @@ class Room:
 
         # -- UPDATES -- player needs to be before tiles for scroll to function properly
             player.update(dt, self.collideable, scroll_value)
-            self.all_tile_sprites.update(scroll_value, True)
-            self.all_object_sprites.update(scroll_value, True)
+            self.all_tile_sprites.update(scroll_value)
+            self.all_object_sprites.update(scroll_value)
 
         # -- RENDER --
         # Draw layers
