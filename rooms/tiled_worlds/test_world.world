@@ -2,24 +2,24 @@
     "maps": [
         {
             "fileName": "../room_0.tmx",
-            "height": 1136,
-            "width": 1536,
+            "height": 1104,
+            "width": 1504,
             "x": 0,
             "y": 0
         },
         {
             "fileName": "../room_1.tmx",
-            "height": 352,
-            "width": 512,
-            "x": 1536,
+            "height": 320,
+            "width": 464,
+            "x": 1504,
             "y": 784
         },
         {
             "fileName": "../room_2.tmx",
-            "height": 432,
-            "width": 720,
+            "height": 400,
+            "width": 688,
             "x": 336,
-            "y": -432
+            "y": -400
         }
     ],
     "onlyShowAdjacentMaps": false,

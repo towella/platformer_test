@@ -63,12 +63,10 @@ class Room:
         # get tiles
         self.collideable = self.create_tile_layer(tmx_data, 'collideable', 'CollideableTile')
         self.hazards = self.create_tile_layer(tmx_data, 'hazards', 'HazardTile')  # TODO hazard, what type? (use tiled custom hitboxing feature on hazard tiles)
-        self.abs_camera_boundaries = {
-            'x': self.create_tile_layer(tmx_data, 'abs camera boundaries x', 'CollideableTile'),
-            'y': self.create_tile_layer(tmx_data, 'abs camera boundaries y', 'CollideableTile')}
 
         # - camera setup -
-        self.camera = Camera(self.screen_surface, self.screen_rect, self.player.sprite, self.abs_camera_boundaries, controllers)
+        room_dim = [tmx_data.width * tile_size, tmx_data.height * tile_size]
+        self.camera = Camera(self.screen_surface, self.screen_rect, room_dim, self.player.sprite, controllers)
         self.camera.focus(True)  # focuses camera on target
         scroll_value = self.camera.get_scroll(dt, fps)  # returns scroll, now focused
         self.player.sprite.apply_scroll(scroll_value)  # applies new scroll to player
@@ -343,3 +341,4 @@ class Room:
             for spawn in self.player_spawns:
                 pygame.draw.circle(self.screen_surface, 'purple', (self.player_spawns[spawn].x, self.player_spawns[spawn].y), 2)
             pygame.draw.circle(self.screen_surface, 'yellow', (self.player_spawn.x, self.player_spawn.y), 2)
+            pygame.draw.rect(self.screen_surface, 'pink', self.camera.room_rect, 1)
