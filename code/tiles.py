@@ -7,6 +7,7 @@ class StaticTile(pygame.sprite.Sprite):
     def __init__(self, pos, size, parallax, surface=None):
         super().__init__()
         self.original_pos = pos
+        self.pos = [pos[0], pos[1]]  # allows for float coordinates for parallax moving
         if surface:
             self.image = surface
         else:
@@ -19,8 +20,12 @@ class StaticTile(pygame.sprite.Sprite):
 
     # allows all tiles to scroll at a set speed creating camera illusion
     def apply_scroll(self, scroll_value):
-        self.rect.x -= int(scroll_value[0] * self.parallax[0])
-        self.rect.y -= int(scroll_value[1] * self.parallax[1])
+        # apply scroll to position (uses non rect variable for float precision)
+        self.pos[0] -= scroll_value[0] * self.parallax[0]
+        self.pos[1] -= scroll_value[1] * self.parallax[1]
+        # sync rect with pos
+        self.rect.x = self.pos[0]
+        self.rect.y = self.pos[1]
 
     # scroll is separate to update, giving control to children of Tile class to override update
     def update(self, scroll_value):
@@ -39,7 +44,6 @@ class CollideableTile(StaticTile):
         self.image = surface  # image is passed tile surface
         self.hitbox = self.image.get_rect()
         self.hitbox_offset = (0, 0)
-        self.pos = [pos[0], pos[1]]  # allows for float coordinates for parallax moving
 
     # allows all tiles to scroll at a set speed creating camera illusion
     def apply_scroll(self, scroll_value):
