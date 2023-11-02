@@ -1,25 +1,33 @@
 {
-    "activeFile": "rooms/room_1.tmx",
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "rooms/room_0.tmx",
     "expandedProjectPaths": [
-        "assets",
         "assets/level_assets",
-        "assets/level_assets/tiles/tile_set_template",
+        "assets",
+        "assets/level_assets/decoration objects/object_set_template",
         "rooms/tiled_worlds",
         "assets/tiles/tile_set_template",
-        "assets/level_assets/tiles",
-        "rooms"
+        "assets/level_assets/tiles/tile_set_template",
+        ".",
+        "assets/level_assets/decoration objects",
+        "rooms/tiled_templates",
+        "rooms",
+        "assets/level_assets/tiles"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "assets/level_assets/decoration objects/object_set_template/object_set_template.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1,
-            "scaleInEditor": 3.17
+            "scaleInEditor": 3.38
         },
         "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx": {
             "dynamicWrapping": false,
             "scaleInDock": 2.0928,
-            "scaleInEditor": 1
+            "scaleInEditor": 2.93
         },
         "assets/tiles/tile_set_template/tile_set_template.tsx": {
             "dynamicWrapping": true,
@@ -28,77 +36,117 @@
         },
         "rooms/room_0.tmx": {
             "expandedGroupLayers": [
-                16,
-                17,
-                21,
                 14,
-                13
+                13,
+                17,
+                16,
+                21
             ],
             "expandedObjectLayers": [
-                16,
+                8,
+                14,
+                29,
                 17,
-                14
+                16,
+                7
             ],
-            "scale": 1.0167,
-            "selectedLayer": -1,
+            "scale": 1.921,
+            "selectedLayer": 9,
             "viewCenter": {
-                "x": 1551.5884725090982,
-                "y": 799.645913248746
+                "x": -40.083289953149404,
+                "y": 90.57782404997398
             }
         },
         "rooms/room_1.tmx": {
             "expandedGroupLayers": [
+                14,
                 16,
-                14
+                13
             ],
             "expandedObjectLayers": [
-                16,
+                14,
                 21,
-                14
+                16,
+                3,
+                13
             ],
-            "scale": 0.3169,
-            "selectedLayer": -1,
+            "scale": 0.2983,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": -935.6263805616913,
-                "y": -265.0678447459767
+                "x": 234.66309084813952,
+                "y": 160.91183372443834
             }
         },
         "rooms/room_2.tmx": {
             "expandedGroupLayers": [
-                7,
-                11,
                 9,
+                8,
+                11,
+                7,
                 15
             ],
-            "scale": 0.9367,
-            "selectedLayer": -1,
+            "scale": 0.9,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": -139.3188854489165,
-                "y": 548.734920465464
+                "x": 227.7777777777778,
+                "y": 307.77777777777777
+            }
+        },
+        "rooms/room_3.tmx": {
+            "expandedGroupLayers": [
+                3,
+                2,
+                5,
+                4
+            ],
+            "expandedObjectLayers": [
+                9,
+                8,
+                3
+            ],
+            "scale": 1.927,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 613.3886870783601,
+                "y": 862.9994810586404
+            }
+        },
+        "rooms/template_room.tmx": {
+            "expandedGroupLayers": [
+                3
+            ],
+            "scale": 0.502,
+            "selectedLayer": 7,
+            "viewCenter": {
+                "x": 397.41035856573706,
+                "y": 555.7768924302788
             }
         }
     },
     "last.externalTilesetPath": "/Users/towella/Documents/programming/python/platformer_test/assets/level_assets/tiles/tile_set_template",
     "last.imagePath": "/Users/towella/Documents/programming/python/platformer_test/assets/level_assets/decoration objects/object_set_template",
     "last.objectTemplatePath": "/Users/towella/Documents/programming/python/platformer_test/rooms/tiled_templates",
-    "last.worldFilePath": "/Users/towella/Documents/programming/python/platformer_test/rooms/tiled_worlds",
+    "last.worldFilePath": "/Users/towella/Documents/programming/GitHub/platformer_test/rooms/tiled_worlds",
     "loadedWorlds": [
         "/Users/towella/Documents/programming/GitHub/platformer_test/rooms/tiled_worlds/test_world.world"
     ],
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
     "openFiles": [
-        "rooms/room_0.tmx",
-        "rooms/room_2.tmx",
-        "rooms/room_1.tmx"
+        "rooms/room_0.tmx"
     ],
     "project": "untitled.tiled-project",
     "property.type": "string",
     "recentFiles": [
         "rooms/room_0.tmx",
+        "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx",
         "rooms/room_2.tmx",
         "rooms/room_1.tmx",
+        "rooms/room_3.tmx",
         "assets/level_assets/decoration objects/object_set_template/object_set_template.tsx",
-        "assets/tiles/tile_set_template/tile_set_template.tsx",
-        "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx"
+        "rooms/template_room.tmx",
+        "assets/tiles/tile_set_template/tile_set_template.tsx"
     ],
     "resizeMap.removeObjects": false,
     "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",

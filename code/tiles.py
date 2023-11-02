@@ -38,21 +38,31 @@ class CollideableTile(StaticTile):
         super().__init__(pos, size, parallax)  # passing in variables to parent class
         self.image = surface  # image is passed tile surface
         self.hitbox = self.image.get_rect()
+        self.hitbox_offset = (0, 0)
         self.pos = [pos[0], pos[1]]  # allows for float coordinates for parallax moving
 
     # allows all tiles to scroll at a set speed creating camera illusion
     def apply_scroll(self, scroll_value):
+        # apply scroll to position
         self.pos[0] -= scroll_value[0] * self.parallax[0]
         self.pos[1] -= scroll_value[1] * self.parallax[1]
+        # sync rect with pos
         self.rect.x = self.pos[0]
         self.rect.y = self.pos[1]
-        self.hitbox.midbottom = self.rect.midbottom
+        # move hitbox, accounting for custom hitbox position
+        self.hitbox.x = self.pos[0] + self.hitbox_offset[0]
+        self.hitbox.y = self.pos[1] + self.hitbox_offset[1]
 
 
 class HazardTile(CollideableTile):
-    def __init__(self, pos, size, parallax, surface, player):
+    def __init__(self, pos, size, parallax, surface, player, properties=None):
         super().__init__(pos, size, parallax, surface)
         self.player = player
+        if properties:
+            colliders = properties['colliders']
+            for obj in colliders:
+                self.hitbox = pygame.Rect(0, 0, obj.width, obj.height)  # custom hitbox from tiled
+                self.hitbox_offset = (obj.x, obj.y)  # custom hitbox position
 
     def update(self, scroll_value):
         if self.hitbox.colliderect(self.player.hitbox):

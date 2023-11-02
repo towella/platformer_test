@@ -854,7 +854,12 @@ class TiledMap(TiledElement):
             )
 
         try:
-            gid = self.layers[int(layer)].data[int(y)][int(x)]
+            # AT 2/11/2023 - self.layers was being used as if dict (is list), accessed layer by index rather than
+            # by desired id. Now accesses by layer id by looping through
+            for l in self.layers:
+                if l.id == int(layer):
+                    gid = l.data[int(y)][int(x)]
+            # gid = self.layers[int(layer)].data[int(y)][int(x)]
         except (IndexError, ValueError):
             msg = "Coords: ({0},{1}) in layer {2} is invalid."
             logger.debug(msg.format(x, y, layer))

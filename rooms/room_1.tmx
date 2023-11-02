@@ -86,7 +86,7 @@
  </group>
  <group id="13" name="systems">
   <objectgroup id="3" name="transitions">
-   <object id="3" template="tiled_templates/Trigger.tx" name="room_0" class="Trigger" x="-29" y="247" width="55.9502" height="80.993"/>
+   <object id="3" template="tiled_templates/Trigger.tx" name="room_0" class="Trigger" x="-29" y="236" width="35" height="91.993"/>
   </objectgroup>
   <objectgroup id="4" name="spawns">
    <object id="2" template="tiled_templates/Spawn.tx" name="room_0" class="Spawn" x="32.0238" y="278.672">

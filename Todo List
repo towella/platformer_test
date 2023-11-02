@@ -2,13 +2,13 @@ Todo List:
 
 NOTES FAQ:
 o sRGB warning - open png w/ photoshop > File > Save As > Untick ICC Profile: sRGB IEC61966-2.1 > overwrite file
+o If a tiled template is not showing up in game, overwrite all default values even if desired == default
 
 
 -- Camera --
 o fix normal horizontal offset. Its broken :(
 o walking horizontal offset
 o target focus doesnt always work (related to camera bounds?)
-o camera boundaries issues on spawn
 o camera respawn player after image
 o camera notes on hollow knight (adjust values mostly)
 o different camera settings for dash
@@ -25,19 +25,19 @@ o double check efficiency and setup of lighting system
 o fix get_background_light_mask_tile so that rooms with no background layers don't cause crash (working surf has nowhere to
     get starting dimensions from)
 
-wall slide
+wall slider
 o wall jump cooldown timer
 
 controls
 o Inaccurate movement features (sticky walls, dash reset early?) **
 o see Celeste game feel twitter thread
-o delta time movement
+o delta time collision detection
 o forces based movement
 
 
 -- room --
 o respawn is now janky with new setup (see previous frame before respawn after respawn??)
-o reset parallax layers on respawn to original position
+o reset parallax layers on respawn to original positionr
 
 
 #### LARGE SCALE DIRECTION ####

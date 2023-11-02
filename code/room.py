@@ -101,7 +101,9 @@ class Room:
 
         elif type == 'HazardTile':
             for x, y, surface in tiles:
-                tile = HazardTile((x * tile_size, y * tile_size), (tile_size, tile_size), parallax, surface, self.player.sprite)
+                # tile properties brought over from tiled. Including tile colliders. Allows for hitboxes custom to tile from tilesheet
+                properties = tmx_file.get_tile_properties(x, y, layer.id)
+                tile = HazardTile((x * tile_size, y * tile_size), (tile_size, tile_size), parallax, surface, self.player.sprite, properties)
                 sprite_group.add(tile)
                 self.all_tile_sprites.add(tile)
 
