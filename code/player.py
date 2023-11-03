@@ -25,11 +25,11 @@ class Player(pygame.sprite.Sprite):
         # - player state on spawn (image, facing dir, respawn=False) -
         # set up starting player facing direction and starting image
         if spawn.player_facing == 'right':
-            self.facing_right = True
+            self.facing_right = 1
             self.image = self.animations['idle_right'][self.frame_index]
             self.current_anim = 'idle_right'
         else:
-            self.facing_right = False
+            self.facing_right = -1
             self.image = self.animations['idle_left'][self.frame_index]
             self.current_anim = 'idle_left'
         self.respawn = False
@@ -197,7 +197,7 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = self.speed_x
             else:
                 self.direction.x = self.crouch_speed
-            self.facing_right = True
+            self.facing_right = 1
             self.right_pressed = True
         else:
             self.right_pressed = False
@@ -207,7 +207,7 @@ class Player(pygame.sprite.Sprite):
                 self.direction.x = -self.speed_x
             else:
                 self.direction.x = -self.crouch_speed
-            self.facing_right = False
+            self.facing_right = -1
             self.left_pressed = True
         else:
             self.left_pressed = False
@@ -219,10 +219,7 @@ class Player(pygame.sprite.Sprite):
             if not self.dashing:
                 self.dashing = True
                 # dash direction right is used to multiply dash direction to indicate direction rather than just displacement
-                if self.facing_right:
-                    self.dash_dir_right = 1
-                else:
-                    self.dash_dir_right = -1
+                self.dash_dir_right = self.facing_right
                 # TODO fix
                 # if player is on wall, dash direction is opposite to facing to dash away from wall
                 if self.on_wall:
@@ -494,9 +491,9 @@ class Player(pygame.sprite.Sprite):
         # determine animation corresponding with player state
         if self.crouching:
             self.current_anim = 'idle_crouch'
-        elif self.facing_right:
+        elif self.facing_right == 1:
             self.current_anim = 'idle_right'
-        elif not self.facing_right:
+        elif self.facing_right == -1:
             self.current_anim = 'idle_left'
 
         # increment index and access required animation from dict

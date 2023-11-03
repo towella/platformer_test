@@ -19,14 +19,16 @@ class Camera():
         # -- fall --
         self.fall_lerp_max = 8  # (8) maximum sensitivity the camera can track the player w/ while falling
         self.fall_lerp_increment = 0.5  # used to increment the falling lerp gradually to it's max for smoothness
-        self.fall_min_time = 60  # number of frames w/ y vel > 0 before falling logic is applied
+        self.fall_min_time = 30  # number of frames w/ y vel > 0 before falling logic is applied
+        # -- dash --
+        self.dash_lerp = 8
         # -- lerp active values --
         self.lerp_x = self.norm_lerp  # controls scroll interpolation amount x (sensitivity of camera to movement of target)
         self.lerp_y = self.norm_lerp  # controls scroll interpolation amount y (sensitivity of camera to movement of target)
 
         # -- offsets --
         self.facing_offset = 25  # offset from the player on the horizontal when not falling and change facing dir (40)
-        self.walking_offset = 35  # offset from the player on the horizontal when walking (not falling and move hori)
+        self.walking_offset = 38  # offset from the player on the horizontal when walking (not falling and move hori)
 
         self.fall_offset = 0  # added to when falling, allows gradual movement of target
         self.fall_offset_max = 100  # max offset from player on vertical when falling
@@ -102,23 +104,18 @@ class Camera():
             self.zoom = 1
 
     def update_target(self):
-        # target[0] = x, target[1] = y
         self.target = [self.player.rect.centerx, self.player.rect.centery]  # sets target to player pos for modification
 
         self.get_input()
 
         # -- player horizontal directional offset --
-        '''# walking
+        # if walking
         if self.player.direction.x != 0:
-            # right
-            if self.player.direction.x > 0:
-                self.target[0] += self.walking_offset
-            # left
-            else:
-                self.target[0] -= self.walking_offset'''
-
-        # facing (multiply distance by direction)
-        self.target[0] += self.facing_offset * self.player.facing_right
+            self.target[0] += self.walking_offset * self.player.facing_right
+        # if standing still
+        else:
+            # facing (magnitude * direction)
+            self.target[0] += self.facing_offset * self.player.facing_right
 
         # -- falling vertical offset --
         # if player IS falling have vertical offset
@@ -170,6 +167,12 @@ class Camera():
             else:
                 self.lerp_y = self.norm_lerp
 
+            # -- lerp x --
+            if self.player.dashing:
+                self.lerp_x = self.dash_lerp
+            else:
+                self.lerp_x = self.norm_lerp
+
             # scroll value cancels player movement with scrolling everything, including player (centerx - scroll_value)
             # subtracts screen width//2 to place player in the center of the screen rather than left edge
 
@@ -197,7 +200,6 @@ class Camera():
                                  self.room_rect.center[1] - self.scroll_value[1]]
 
         return self.scroll_value
-
 
     # returns zoom value and offset required to zoom into target point (currently center of screen)
     def get_zoom(self):

@@ -150,5 +150,4 @@ def game():
         pygame.display.update()
         clock.tick(game_speed)
 
-
 main_menu()

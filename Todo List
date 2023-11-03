@@ -5,15 +5,11 @@ o sRGB warning - open png w/ photoshop > File > Save As > Untick ICC Profile: sR
 o If a tiled template is not showing up in game, overwrite all default values even if desired == default
 
 
+
+
 -- Camera --
-o fix normal horizontal offset. Its broken :(
-o walking horizontal offset
-o target focus doesnt always work (related to camera bounds?)
-o camera respawn player after image
-o camera notes on hollow knight (adjust values mostly)
-o different camera settings for dash
 o zoom on custom point rather than only center of screen
-o zoom drops frame rate fix
+o zoom drops frame rate fix (not major issue. Zooms to acceptable amount without issue)
 
 
 -- Player --
@@ -32,19 +28,13 @@ controls
 o Inaccurate movement features (sticky walls, dash reset early?) **
 o see Celeste game feel twitter thread
 o delta time collision detection
+o delta time movement
 o forces based movement
-
-
--- room --
-o respawn is now janky with new setup (see previous frame before respawn after respawn??)
-o reset parallax layers on respawn to original positionr
 
 
 #### LARGE SCALE DIRECTION ####
 IMPLEMENT DICTIONARIES for efficiency
 Implement chunk system
-
-
 
 
 add scrolling text function to game somewhere:
