@@ -9,10 +9,10 @@
         },
         {
             "fileName": "../room_1.tmx",
-            "height": 320,
-            "width": 464,
+            "height": 416,
+            "width": 1120,
             "x": 1504,
-            "y": 784
+            "y": 1008
         },
         {
             "fileName": "../room_2.tmx",

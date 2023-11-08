@@ -399,7 +399,7 @@
    </object>
    <object id="8" template="tiled_templates/Spawn.tx" name="room_1" class="Spawn" x="1440" y="1063.36">
     <properties>
-     <property name="player_facing" value="right"/>
+     <property name="player_facing" value="left"/>
     </properties>
    </object>
    <object id="14" template="tiled_templates/Spawn.tx" name="1" class="Spawn" x="335.916" y="200.154">

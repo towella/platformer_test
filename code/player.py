@@ -90,7 +90,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_hold_timer = self.jump_max  # amount of time jump has been held. Not related to allowing initial jumps
 
         # - double jump -
-        self.can_double_jump = True
+        self.can_double_jump = False
         # - coyote time -
         self.coyote_timer = 0  # times the frames since left the floor
         self.coyote_max = 5  # maximum time for a coyote jump to occur
@@ -107,16 +107,18 @@ class Player(pygame.sprite.Sprite):
         # (starts on max to prevent buffer jump being cued on start)
 
         # -- Wall slide/jump --
-        self.on_wall = False
-        self.can_wall_jump = True
+        self.on_wall = False  # if player is currently touching wall
+        self.can_wall_jump = True  # whether allowed to wall jump or not
+        self.wall_jumping = False  # whether player is in wall jump (should have x wall kick vel applied)
+        self.wall_jump_max = 5  # timer for duration of wall jump
         self.on_wall_right = -1  # used to multiply wall x offset to change direction
         self.wall_jump_speed = 7  # wall jump upwards speed
-        self.wall_kick_speed = 15  # horizontal velocity gained away from wall when wall jumping
+        self.wall_kick_speed = 3  # horizontal velocity gained away from wall when wall jumping
         self.wall_term_vel = 2  # maximum fall (slide) speed when on a wall
         self.extended_wall_jumps = False
         # - sticky wall -
-        self.sticky_wall_timer = 0
         self.sticky_wall_max = 5
+        self.sticky_wall_timer = self.sticky_wall_max
         # - buffer wall jump -
         self.wall_jumpbuff_max = 7  # max time a buffered wall jump can be cued before it is removed (in frames)
 
@@ -192,7 +194,7 @@ class Player(pygame.sprite.Sprite):
         #### horizontal movement ####
         # -- walk --
         # the not self.'side'_pressed prevents holding a direction and hitting the other at the same time to change direction
-        if (keys[pygame.K_d] or self.get_controller_input('right')) and not self.left_pressed:
+        if (keys[pygame.K_d] or self.get_controller_input('right')) and not self.left_pressed and not self.wall_jumping:
             if not self.crouching:
                 self.direction.x = self.speed_x
             else:
@@ -202,7 +204,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.right_pressed = False
 
-        if (keys[pygame.K_a] or self.get_controller_input('left')) and not self.right_pressed:
+        if (keys[pygame.K_a] or self.get_controller_input('left')) and not self.right_pressed and not self.wall_jumping:
             if not self.crouching:
                 self.direction.x = -self.speed_x
             else:
@@ -214,7 +216,7 @@ class Player(pygame.sprite.Sprite):
 
         # -- dash --
         # if wanting to dash and not holding the button
-        if (keys[pygame.K_PERIOD] or self.get_controller_input('dash')) and not self.dash_pressed:
+        if (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] or self.get_controller_input('dash')) and not self.dash_pressed:
             # if only just started dashing, dashing is true and dash direction is set. Prevents changing dash dir during dash
             if not self.dashing:
                 self.dashing = True
@@ -227,7 +229,7 @@ class Player(pygame.sprite.Sprite):
             self.dashbuff_timer = 0  # set to 0 ready for next buffdash
             self.dash_pressed = True
         # neccessary to prevent repeated dashes on button hold
-        elif not keys[pygame.K_PERIOD] and not self.get_controller_input('dash'):
+        elif not keys[pygame.K_LSHIFT] and not keys[pygame.K_RSHIFT] and not self.get_controller_input('dash'):
             self.dash_pressed = False
 
         self.dash(dt)
@@ -388,22 +390,29 @@ class Player(pygame.sprite.Sprite):
         else:
             self.coyote_timer += round(1 * dt)  # increments when not on the ground
 
+        # -- sticky wall time --
+        if self.on_wall:
+            self.sticky_wall_timer = 0  # reset on wall
+        else:
+            self.sticky_wall_timer += round(1 * dt)  # increments when not on wall
+
         # - reset -
         if self.on_ground:
             self.jumping = False
         if self.on_ground or self.on_wall:
             self.can_double_jump = True
+            self.wall_jumping = False
         if not self.jump_pressed:
             self.can_wall_jump = True
 
         # - wall jump -
         # before normal jump. Prevents double jump being checked before wall jump (BAD: infinite double jumps up walls)
-        # if on wall
+        # if on wall or within sticky wall lenience window
         # input within jump window
         # not on the ground (so ground jump takes prescendence over wall jump)
         # allowed to wall jump (button has been lifted since last wall jump)
         # wanting jump (jump pressed)
-        if self.on_wall and self.jump_timer < self.wall_jumpbuff_max and not \
+        if self.sticky_wall_timer < self.sticky_wall_max and self.jump_timer < self.wall_jumpbuff_max and not \
                 self.on_ground and self.can_wall_jump and self.jump_pressed:
             self.direction.y = -self.wall_jump_speed
             # sideways kick off, thrust opposite facing dir.
@@ -411,6 +420,7 @@ class Player(pygame.sprite.Sprite):
             # // dt to counteract later * by dt. prevents dt being applied to instantaneous movement
             self.direction.x = (self.wall_kick_speed // dt) * -self.on_wall_right
             self.dashing = False
+            self.wall_jumping = True
             self.can_wall_jump = False
             if self.extended_wall_jumps:
                 self.jumping = True  # (wall jump)
@@ -447,6 +457,12 @@ class Player(pygame.sprite.Sprite):
         # if already jumping (has hopped) and not exceeding max jump and want to jump still
         elif self.jumping and self.jump_hold_timer < self.jump_max and self.jump_pressed:
             self.direction.y = -self.jump_speed
+
+        # - continue wall jump velocity -
+        if self.wall_jumping and self.jump_timer < self.wall_jump_max:
+            self.direction.x = self.wall_kick_speed * -self.on_wall_right
+        else:
+            self.wall_jumping = False
 
         self.jump_timer += round(1 * dt)  # increments the timer (time since jump input if jump hasnt been executed yet)
         self.jump_hold_timer += round(1 * dt)  # increments timer (time jump has been held for)
@@ -512,7 +528,10 @@ class Player(pygame.sprite.Sprite):
     # checks collision for a given hitbox (the player's) against given tiles on the x
     def collision_x(self, tiles):
         collision_offset = [0, 0]  # position hitbox is to be corrected to after checks
-        self.on_wall = False
+        # if on wall on prev frame, push one pixel towards wall so collision checks == true. Stays sliding on wall
+        if self.on_wall:
+            self.hitbox.x += self.on_wall_right
+        self.on_wall = False  # assume false until proven true
 
         top = False
         top_margin = False

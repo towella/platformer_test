@@ -20,15 +20,11 @@ o double check efficiency and setup of lighting system
     - add raycasting?
 o fix get_background_light_mask_tile so that rooms with no background layers don't cause crash (working surf has nowhere to
     get starting dimensions from)
-
-wall slider
-o wall jump cooldown timer
+o Dash into crouch tunnel - removes movement
 
 controls
-o Inaccurate movement features (sticky walls, dash reset early?) **
-o see Celeste game feel twitter thread
 o delta time collision detection
-o delta time movement
+o delta time gravity
 o forces based movement
 
 
