@@ -24,14 +24,13 @@ class Player(pygame.sprite.Sprite):
 
         # - player state on spawn (image, facing dir, respawn=False) -
         # set up starting player facing direction and starting image
-        if spawn.player_facing == 'right':
+        facing = spawn.player_facing.lower()
+        if facing == 'right':
             self.facing_right = 1
-            self.image = self.animations['idle_right'][self.frame_index]
-            self.current_anim = 'idle_right'
         else:
             self.facing_right = -1
-            self.image = self.animations['idle_left'][self.frame_index]
-            self.current_anim = 'idle_left'
+        self.image = self.animations['idle_' + facing][self.frame_index]
+        self.current_anim = 'idle_' + facing
         self.respawn = False
 
         # - rect and lights -
@@ -59,7 +58,7 @@ class Player(pygame.sprite.Sprite):
         self.left_pressed = False
 
         # - dash -
-        self.dashing = False  # NOT REDUNDANT. IS NECCESSARY. Allows resetting timer while dashing. Also more readable code
+        self.dashing = False  # NOT REDUNDANT. IS NECCESSARY. Allows resetting timer while dashing. More readable code
         self.dash_speed = 4
         self.dash_pressed = False
         self.dash_max = 12  # max time of dash in frames
@@ -68,14 +67,14 @@ class Player(pygame.sprite.Sprite):
         # - buffer dash -
         self.buffer_dash = False  # is a buffer dash cued up
         self.dashbuff_max = 5  # max time a buffered dash can be cued before it is removed (in frames)
-        self.dashbuff_timer = self.dashbuff_max  # times a buffered dash from input (starts on max to prevent jump being cued on start)
+        self.dashbuff_timer = self.dashbuff_max  # times buffered dash from input (maxed to prevent jump cued on start)
 
         # -- gravity and falling --
         self.on_ground = False
         self.fall_timer = 0  # timer for how long the player has had a positive y vel and not on ground
         # - terminal vel -
         self.norm_terminal_vel = 10
-        self.terminal_vel = self.norm_terminal_vel  # maximum fall speed. if higher than self.collision_tolerance, will allow phasing :(
+        self.terminal_vel = self.norm_terminal_vel  # max fall speed. if higher than collision tolerance, allows phasing :(
         # - gravity -
         self.gravity = 0.4
         self.fall_gravity = 1

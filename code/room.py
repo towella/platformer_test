@@ -182,7 +182,8 @@ class Room:
         # tile layers
         if layer.type == 'tile decoration':
             for x, y, surface in layer.tiles():
-                surf.blit(surface, (x * tile_size, y * tile_size))
+                if surface:
+                    surf.blit(surface, (x * tile_size, y * tile_size))
 
         # object layers
         elif layer.type == 'object decoration':  # layer in tmx_file.objectgroups:

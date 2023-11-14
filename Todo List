@@ -10,16 +10,14 @@ o If a tiled template is not showing up in game, overwrite all default values ev
 -- Camera --
 o zoom on custom point rather than only center of screen
 o zoom drops frame rate fix (not major issue. Zooms to acceptable amount without issue)
+o Fix focus on point
+o soft camera bounds
 
 
 -- Player --
-o ensure commenting is accurate ****
-
 o double check efficiency and setup of lighting system
     - sprite group?
     - add raycasting?
-o fix get_background_light_mask_tile so that rooms with no background layers don't cause crash (working surf has nowhere to
-    get starting dimensions from)
 o Dash into crouch tunnel - removes movement
 
 controls
@@ -29,8 +27,8 @@ o forces based movement
 
 
 #### LARGE SCALE DIRECTION ####
-IMPLEMENT DICTIONARIES for efficiency
-Implement chunk system
+o IMPLEMENT DICTIONARIES for efficiency
+o Implement chunk system
 
 
 add scrolling text function to game somewhere:

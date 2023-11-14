@@ -22,15 +22,13 @@ game_speed = 60
 # placed on and then resized to blit on the window. Allowing larger pixels (art pixel = game pixel)
 # https://stackoverflow.com/questions/54040397/pygame-rescale-pixel-size
 
-scaling_factor = 3.4  # how much the screen is scaled up before bliting on display
-
 # https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode
 # https://www.reddit.com/r/pygame/comments/r943bn/game_stuttering/
 # vsync only works with scaled flag. Scaled flag will only work in combination with certain other flags.
 # although resizeable flag is present, window can not be resized, only fullscreened with vsync still on
 # vsync prevents screen tearing (multiple frames displayed at the same time creating a shuddering wave)
 # screen dimensions are cast to int to prevent float values being passed (-1 is specific to this game getting screen multiple of 16)
-window = pygame.display.set_mode((int(screen_width * scaling_factor) - 1, int(screen_height * scaling_factor)), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.SCALED, vsync=True)
+window = pygame.display.set_mode((int(screen_width * scaling_factor) - 1, int(screen_height * scaling_factor)), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.SCALED | pygame.FULLSCREEN, vsync=True)
 
 # all pixel values in game logic should be based on the screen!!!! NO .display FUNCTIONS!!!!!
 screen = pygame.Surface((screen_width, screen_height))  # the display surface, re-scaled and blit to the window
