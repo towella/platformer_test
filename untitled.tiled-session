@@ -3,24 +3,20 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "rooms/room_1.tmx",
+    "activeFile": "rooms/room_0.tmx",
     "expandedProjectPaths": [
         "assets/tiles/tile_set_template",
-        ".",
-        "assets/level_assets",
         "rooms/tiled_templates",
-        "assets/level_assets/tiles",
-        "assets/level_assets/decoration objects",
         "rooms",
-        "assets/level_assets/decoration objects/object_set_template",
-        "assets/level_assets/tiles/grass",
-        "assets",
-        "assets/level_assets/tiles/tile_set_template",
+        ".",
         "rooms/tiled_worlds"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
+            "scaleInDock": 1
+        },
+        "/Users/towella/Documents/programming/GitHub/assets/level_assets/tiles/tile_set_template/tile_set_template.tsx": {
             "scaleInDock": 1
         },
         "/Users/towella/Documents/programming/GitHub/pigeon_game/assets/level_assets/decoration objects/object_set_template/object_set_template.tsx": {
@@ -43,17 +39,17 @@
         },
         "assets/level_assets/decoration objects/object_set_template/object_set_template.tsx": {
             "dynamicWrapping": true,
-            "scaleInDock": 1,
+            "scaleInDock": 5.74,
             "scaleInEditor": 3.38
         },
         "assets/level_assets/tiles/grass/Grass.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 5.749,
+            "scaleInDock": 3.0682,
             "scaleInEditor": 4.39
         },
         "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 2.9916,
+            "scaleInDock": 5.74,
             "scaleInEditor": 1.9
         },
         "assets/tiles/tile_set_template/tile_set_template.tsx": {
@@ -61,27 +57,29 @@
             "scaleInDock": 1.9374,
             "scaleInEditor": 3.6
         },
+        "rooms/assets/level_assets/tiles/tile_set_template/tile_set_template.tsx": {
+            "scaleInDock": 1
+        },
         "rooms/room_0.tmx": {
             "expandedGroupLayers": [
                 21,
-                16,
-                17,
                 14,
-                13
+                13,
+                16,
+                17
             ],
             "expandedObjectLayers": [
-                8,
                 7,
-                16,
-                17,
                 14,
-                29
+                29,
+                16,
+                17
             ],
-            "scale": 0.5,
-            "selectedLayer": 6,
+            "scale": 2.0443,
+            "selectedLayer": 9,
             "viewCenter": {
-                "x": 1707,
-                "y": 1024
+                "x": 119.84542386146849,
+                "y": 123.26957882893899
             }
         },
         "rooms/room_0.tmx#tile_set_template": {
@@ -89,79 +87,77 @@
         },
         "rooms/room_1.tmx": {
             "expandedGroupLayers": [
-                16,
                 14,
-                13
+                13,
+                16,
+                3
             ],
             "expandedObjectLayers": [
-                21,
-                16,
-                3,
-                14,
-                13
+                9,
+                3
             ],
-            "scale": 0.8829,
-            "selectedLayer": 5,
+            "scale": 2.2315,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 338.0903839619436,
-                "y": 144.97678106240795
+                "x": 782.8814698633205,
+                "y": 306.5202778400179
             }
         },
         "rooms/room_2.tmx": {
             "expandedGroupLayers": [
-                8,
-                9,
-                7,
                 15,
+                7,
+                9,
+                8,
                 11
             ],
             "expandedObjectLayers": [
-                8,
+                5,
                 6,
-                5
+                8
             ],
-            "scale": 2.4899,
-            "selectedLayer": 3,
+            "scale": 1.0568,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 343.9897184625888,
-                "y": 199.60640989597977
+                "x": 149.50794852384556,
+                "y": 453.2551097653293
             }
         },
         "rooms/room_3.tmx": {
             "expandedGroupLayers": [
-                4,
-                5,
+                3,
                 2,
-                3
+                5,
+                4
             ],
             "expandedObjectLayers": [
-                8,
+                3,
                 9,
-                3
+                8
             ],
-            "scale": 1.4844,
-            "selectedLayer": 4,
+            "scale": 0.4743,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": 239.4907033144705,
-                "y": 479.655079493398
+                "x": 2085.1781572844193,
+                "y": 2137.887413029728
             }
         },
         "rooms/room_4.tmx": {
             "expandedGroupLayers": [
-                5,
+                3,
                 2,
-                3
+                5
             ],
             "expandedObjectLayers": [
-                8,
+                3,
                 9,
-                3
+                8
             ],
-            "scale": 1.721,
-            "selectedLayer": 3,
+            "scale": 0.3426,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 399.4770482277745,
-                "y": 160.37187681580477
+                "x": 283.1290134267366,
+                "y": 1036.193812025686
             }
         },
         "rooms/template_room.tmx": {
@@ -174,11 +170,23 @@
                 "x": 397.41035856573706,
                 "y": 555.7768924302788
             }
+        },
+        "rooms/tiled_templates/template_room.tmx": {
+            "expandedGroupLayers": [
+                2,
+                3
+            ],
+            "scale": 0.8777,
+            "selectedLayer": 6,
+            "viewCenter": {
+                "x": 285.9747066195739,
+                "y": 236.98302381223652
+            }
         }
     },
-    "last.externalTilesetPath": "/Users/towella/Documents/programming/python/platformer_test/assets/level_assets/tiles/tile_set_template",
+    "last.externalTilesetPath": "/Users/towella/Documents/programming/GitHub/platformer_test/assets/level_assets/tiles/tile_set_template",
     "last.imagePath": "/Users/towella/Documents/programming/GitHub/platformer_test/assets/level_assets/tiles/grass",
-    "last.objectTemplatePath": "/Users/towella/Documents/programming/python/platformer_test/rooms/tiled_templates",
+    "last.objectTemplatePath": "/Users/towella/Documents/programming/GitHub/platformer_test/rooms/tiled_templates",
     "last.worldFilePath": "/Users/towella/Documents/programming/GitHub/platformer_test/rooms/tiled_worlds",
     "loadedWorlds": [
         "/Users/towella/Documents/programming/GitHub/platformer_test/rooms/tiled_worlds/test_world.world"
@@ -188,26 +196,23 @@
     "map.tileWidth": 16,
     "openFiles": [
         "rooms/room_0.tmx",
-        "rooms/room_1.tmx",
-        "rooms/room_2.tmx",
-        "rooms/room_4.tmx",
-        "rooms/room_3.tmx"
+        "rooms/room_1.tmx"
     ],
     "project": "untitled.tiled-project",
-    "property.type": "string",
+    "property.type": "object",
     "recentFiles": [
-        "rooms/room_0.tmx",
-        "rooms/room_3.tmx",
-        "rooms/room_4.tmx",
-        "rooms/room_2.tmx",
         "rooms/room_1.tmx",
+        "rooms/room_0.tmx",
+        "rooms/tiled_templates/template_room.tmx",
+        "rooms/room_2.tmx",
+        "rooms/room_4.tmx",
+        "rooms/room_3.tmx",
         "assets/level_assets/tiles/grass/Grass.tsx",
         "/Users/towella/Documents/programming/GitHub/pigeon_game/rooms/tiled_tilesets/8x8 tileset_template.tsx",
         "/Users/towella/Documents/programming/GitHub/pigeon_game/rooms/room_0.tmx",
         "assets/level_assets/tiles/tile_set_template/tile_set_template.tsx",
         "assets/level_assets/decoration objects/object_set_template/object_set_template.tsx",
-        "rooms/template_room.tmx",
-        "assets/tiles/tile_set_template/tile_set_template.tsx"
+        "rooms/template_room.tmx"
     ],
     "resizeMap.removeObjects": false,
     "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",

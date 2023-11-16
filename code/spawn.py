@@ -12,6 +12,9 @@ class Spawn(pygame.sprite.Sprite):
         self.parallax = parallax
         self.player_facing = player_facing
 
+    def get_pos(self):
+        return [self.x, self.y]
+
     def apply_scroll(self, scroll_value, use_parallax):
         if use_parallax:
             self.x -= int(scroll_value[0] * self.parallax[0])

@@ -46,7 +46,7 @@ for joystick in joysticks:
     joystick.init()
 
 # font
-font = Font(fonts['small_font'], 'white')
+font = Font(fonts['small'], 'white')
 
 
 # creates path to new room based on root room path and desired room
@@ -123,7 +123,7 @@ def game():
         # -- Checks --
 
         # -- Update --
-        screen.fill((15, 0, 34))
+        screen.fill((0, 0, 0))
         room.update(dt, fps)  # runs level processes
         # if player has hit a room transition in the room, change the active room
         room_transition = room.room_transitions()

@@ -103,6 +103,9 @@ class Camera():
         if self.zoom < 1:
             self.zoom = 1
 
+    def reset_zoom(self):
+        self.zoom = 1
+
     def update_target(self):
         self.target = [self.player.rect.centerx, self.player.rect.centery]  # sets target to player pos for modification
 

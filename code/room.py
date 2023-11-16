@@ -8,7 +8,7 @@ from support import *
 from tiles import StaticTile, CollideableTile, HazardTile
 # - objects -
 from player import Player
-from trigger import Trigger, SpawnTrigger
+from trigger import Trigger, SpawnTrigger, DoorTrigger
 from spawn import Spawn
 # - systems -
 from camera import Camera
@@ -34,6 +34,14 @@ class Room:
         self.pause = False
         self.pause_pressed = False
 
+        self.req_respawn = False  # request respawn of player
+        # create surface for fade effects
+        self.fade_surf = pygame.Surface((self.screen_width, self.screen_height)).convert(24)
+        self.fade_surf.fill("black")
+        self.fade_surf.set_alpha(0)
+        self.fade_timer = 0
+        self.fade_time_increment = 0.05  # speed that fade occurs
+
         #dt = dt  # dt starts as 1 because on the first frame we can assume it is 60fps. dt = 1/60 * 60 = 1
 
         # - get level data -
@@ -54,15 +62,15 @@ class Room:
                 self.foreground_layers.append(self.create_decoration_layer(tmx_data, layer))
 
         # get objects
-        self.transitions = self.create_object_layer(tmx_data, 'transitions', 'Trigger')
-        self.player_spawns = self.create_object_layer(tmx_data, 'spawns', 'Spawn')
-        self.spawn_triggers = self.create_object_layer(tmx_data, 'spawns', 'SpawnTrigger')
-        # self.player_spawn_triggers = self.create_object_group(tmx_data, 'spawns', 'Trigger')
-        self.player = self.create_object_layer(tmx_data, '', 'Player')  # must be completed after player_spawns layer
+        self.transitions = self.create_object_layer(tmx_data, 'triggers', 'Transition')
+        self.checkpoints = self.create_object_layer(tmx_data, 'triggers', 'Checkpoint')
+        self.doors = self.create_object_layer(tmx_data, 'triggers', 'Door')
+        # player must be delt with after other objects for spawns to be in place
+        self.player = self.create_object_layer(tmx_data, 'triggers', 'Player')  # spawns in triggers layer
 
         # get tiles
         self.collideable = self.create_tile_layer(tmx_data, 'collideable', 'CollideableTile')
-        self.hazards = self.create_tile_layer(tmx_data, 'hazards', 'HazardTile')  # TODO hazard, what type? (use tiled custom hitboxing feature on hazard tiles)
+        self.hazards = self.create_tile_layer(tmx_data, 'hazards', 'HazardTile')
 
         # - camera setup -
         room_dim = [tmx_data.width * tile_size, tmx_data.height * tile_size]
@@ -74,8 +82,8 @@ class Room:
         self.all_object_sprites.update(scroll_value)  # applies new scroll to all object sprites
 
         # - text setup -
-        self.small_font = Font(resource_path(fonts['small_font']), 'white')
-        self.large_font = Font(resource_path(fonts['large_font']), 'white')
+        self.small_font = Font(resource_path(fonts['small']), 'white')
+        self.large_font = Font(resource_path(fonts['large']), 'white')
 
 # -- set up room methods --
 
@@ -118,13 +126,22 @@ class Room:
             layer = tmx_file.get_layer_by_name(layer_name)
             parallax = (layer.parallaxx, layer.parallaxy)
 
-        if object_class == 'SpawnTrigger':
+        if object_class == 'Transition' or object_class == 'Checkpoint':
             for obj in layer:  # can iterate over for objects
                 # checks if object is a trigger (multiple object types/classes could be in the layer)
                 if obj.type == object_class:
-                    spawn_data = tmx_file.get_object_by_id(obj.trigger_spawn)
+                    spawn_data = tmx_file.get_object_by_id(obj.spawn)
                     spawn = Spawn(spawn_data.x, spawn_data.y, spawn_data.name, parallax, spawn_data.player_facing)
                     trigger = SpawnTrigger(obj.x, obj.y, obj.width, obj.height, obj.name, parallax, spawn)
+                    sprite_group.add(trigger)
+                    self.all_object_sprites.add(trigger)
+
+        elif object_class == "Door":
+            for obj in layer:
+                if obj.type == object_class:
+                    spawn_data = tmx_file.get_object_by_id(obj.spawn)
+                    spawn = Spawn(spawn_data.x, spawn_data.y, spawn_data.name, parallax, spawn_data.player_facing)
+                    trigger = DoorTrigger(obj.x, obj.y, obj.width, obj.height, obj.name, parallax, spawn, obj.text)
                     sprite_group.add(trigger)
                     self.all_object_sprites.add(trigger)
 
@@ -135,21 +152,17 @@ class Room:
                     sprite_group.add(trigger)
                     self.all_object_sprites.add(trigger)
 
-        elif object_class == 'Spawn':
-            sprite_group = {}
-            for obj in layer:
-                # multiple types of object could be in layer, so checking it is correct object type (spawn)
-                if obj.type == object_class:
-                    # creates a dictionary containing spawn name: spawn pairs for ease and efficiency of access
-                    spawn = Spawn(obj.x, obj.y, obj.name, parallax, obj.player_facing)
-                    sprite_group[spawn.name] = spawn
-                    self.all_object_sprites.add(spawn)
-
         elif object_class == 'Player':
             sprite_group = pygame.sprite.GroupSingle()
-            # finds the correct starting position corresponding to the last room/transition
-            # TODO remove need for self.player_spawns
-            spawn = self.player_spawns[self.previous_room]
+            # find correct spawn for prev room that is attatched to either a checkpoint, room transition or door object
+            # spawn point must be attatched because otherwise spawn point does not get updated with scroll
+            for obj in self.all_object_sprites:
+                # if name of obj is prev room, indicates attatched to spawn allocated for transition from prev room
+                # also every obj has name attr by default even if unfilled
+                if obj.name == self.previous_room:
+                    spawn = obj.spawn
+                    break
+            # create player
             player = Player(self, spawn)
             sprite_group.add(player)
             self.player_spawn = spawn  # stores the spawn instance for future respawn
@@ -195,7 +208,7 @@ class Room:
         self.all_tile_sprites.add(tile)
         return sprite_group
 
-# -- check methods --
+# -- systems --
 
     def get_input(self):
         keys = pygame.key.get_pressed()
@@ -231,7 +244,7 @@ class Room:
                 return True
         return False
 
-    # checks if player has collided with a room_transition trigger
+    # checks if player has collided with a room_transition trigger or has interacted with door
     def room_transitions(self):
         player = self.player.sprite
         # loop through all the game objects for the level transition trigger rectangles
@@ -240,7 +253,34 @@ class Room:
             # otherwise return false
             if trigger.hitbox.colliderect(player.hitbox):
                 return trigger.name
+
+        for door in self.doors:
+            # if player has hit door trigger and hit interact button on the ground, return new room (door name)
+            if door.hitbox.colliderect(player.hitbox) and player.interact and player.on_ground:
+                return door.name
+
         return False
+
+    # player respawn screen effect
+    def respawn(self, dt):
+        player_respawn = self.player.sprite.get_respawn()
+        zoom_speed = 0.1
+        # if player still requesting respawn and respawn has been requested. Fade out and respawn player after
+        if player_respawn:
+            self.fade_out(dt)
+            self.camera.change_zoom(zoom_speed)
+            if self.fade_timer >= 1:
+                self.fade_timer = 0
+                self.camera.reset_zoom()
+                self.camera.focus(True)
+                self.player.sprite.player_respawn(self.player_spawn)  # respawns player if respawn has been evoked
+
+        # if player not requesting respawn but respawn is still being requested by level. Fade back in
+        elif not player_respawn:
+            self.fade_in(dt)
+            if self.fade_timer >= 1:
+                self.fade_timer = 0
+                self.req_respawn = False
 
 # -- visual --
 
@@ -253,6 +293,23 @@ class Room:
             # TODO testing, remove
             if self.dev_debug and hasattr(tile, 'hitbox'):
                 pygame.draw.rect(self.screen_surface, 'green', tile.hitbox, 1)
+
+    def draw_doors(self):
+        player = self.player.sprite
+        # render door if player is in door trigger and player is grounded
+        for door in self.doors:
+            if player.hitbox.colliderect(door.hitbox) and player.on_ground:
+                door.draw(self.screen_surface)
+
+    def fade_out(self, dt):
+        self.fade_timer += self.fade_time_increment * dt
+        alpha = lerp1D(0, 255, self.fade_timer**3)
+        self.fade_surf.set_alpha(alpha)
+
+    def fade_in(self, dt):
+        self.fade_timer += self.fade_time_increment * dt
+        alpha = lerp1D(255, 0, self.fade_timer**3)
+        self.fade_surf.set_alpha(alpha)
 
 # -- menus --
 
@@ -286,7 +343,7 @@ class Room:
         if not pygame.display.get_active():
             self.pause = True
 
-        if not self.pause:
+        if not self.pause and not player.get_respawn():
 
             # scroll -- must be first, camera calculates scroll, stores it and returns it for application
             scroll_value = self.camera.get_scroll(dt, fps)
@@ -295,20 +352,19 @@ class Room:
             # which object should handle collision? https://gamedev.stackexchange.com/questions/127853/how-to-decide-which-gameobject-should-handle-the-collision
 
             # checks if player has collided with spawn trigger and updates spawn
-            for spawn_trigger in self.spawn_triggers:
-                if player.hitbox.colliderect(spawn_trigger.hitbox):
-                    self.player_spawn = spawn_trigger.trigger_spawn
+            for checkpoint in self.checkpoints:
+                if player.hitbox.colliderect(checkpoint.hitbox):
+                    self.player_spawn = checkpoint.spawn
                     break
-
-            # checks if the player needs to respawn and therefore needs to focus on the player and reset all tiles
-            if player.get_respawn():
-                self.camera.focus(True)
-                player.player_respawn(self.player_spawn)  # respawns player if respawn has been evoked
 
         # -- UPDATES -- player needs to be before tiles for scroll to function properly
             player.update(dt, self.collideable, scroll_value)
             self.all_tile_sprites.update(scroll_value)
             self.all_object_sprites.update(scroll_value)
+
+        # if checks have been prevented, check if player needs respawn therefore requesting level respawn
+        elif player.get_respawn():
+            self.req_respawn = True
 
         # -- RENDER --
         # Draw layers
@@ -317,12 +373,19 @@ class Room:
         self.player.sprite.draw()
         self.draw_tile_group(self.collideable)
         self.draw_tile_group(self.hazards)
+        self.draw_doors()
         for layer in self.foreground_layers:
             self.draw_tile_group(layer)
+
+        self.screen_surface.blit(self.fade_surf, (0, 0))
 
         # must be after other renders to ensure menu is drawn last
         if self.pause:
             self.pause_menu()
+
+        # TODO placed before checks??
+        if self.req_respawn:
+            self.respawn(dt)
 
         # Dev Tools
         if self.dev_debug:
@@ -337,11 +400,16 @@ class Room:
             pygame.draw.circle(self.screen_surface, 'blue', self.camera.target, 2)
             for trigger in self.transitions:
                 pygame.draw.rect(self.screen_surface, 'purple', trigger.hitbox, 1)
-            for trigger in self.spawn_triggers:
+            for trigger in self.checkpoints:
                 pygame.draw.rect(self.screen_surface, 'purple', trigger.hitbox, 1)
             for hazard in self.hazards:
                 pygame.draw.rect(self.screen_surface, 'red', hazard.hitbox, 1)
-            for spawn in self.player_spawns:
-                pygame.draw.circle(self.screen_surface, 'purple', (self.player_spawns[spawn].x, self.player_spawns[spawn].y), 2)
+            for spawntrig in self.checkpoints:
+                pos = spawntrig.get_spawn_pos()
+                pygame.draw.circle(self.screen_surface, 'purple', (pos[0], pos[1]), 2)
             pygame.draw.circle(self.screen_surface, 'yellow', (self.player_spawn.x, self.player_spawn.y), 2)
             pygame.draw.rect(self.screen_surface, 'pink', self.camera.room_rect, 1)
+
+            for door in self.doors:
+                pygame.draw.rect(self.screen_surface, 'purple', door.hitbox, 1)
+                door.draw(self.screen_surface)

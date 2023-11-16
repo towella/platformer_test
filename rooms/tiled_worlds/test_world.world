@@ -1,39 +1,25 @@
 {
     "maps": [
         {
-            "fileName": "../room_0.tmx",
-            "height": 1104,
-            "width": 1504,
-            "x": 0,
-            "y": 0
-        },
-        {
-            "fileName": "../room_1.tmx",
-            "height": 416,
-            "width": 1120,
-            "x": 1504,
-            "y": 1008
-        },
-        {
-            "fileName": "../room_2.tmx",
-            "height": 400,
-            "width": 688,
-            "x": 336,
-            "y": -400
-        },
-        {
             "fileName": "../room_3.tmx",
             "height": 960,
             "width": 480,
             "x": -480,
-            "y": -720
+            "y": -704
         },
         {
-            "fileName": "../room_4.tmx",
+            "fileName": "../room_1.tmx",
             "height": 320,
-            "width": 800,
-            "x": 0,
-            "y": -720
+            "width": 480,
+            "x": -448,
+            "y": 32
+        },
+        {
+            "fileName": "../room_0.tmx",
+            "height": 0,
+            "width": 0,
+            "x": 32,
+            "y": 96
         }
     ],
     "onlyShowAdjacentMaps": false,

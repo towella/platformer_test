@@ -1,17 +1,25 @@
-Todo List:
-
-NOTES FAQ:
+NOTES FAQ: -------------------------------------------------------------------------------------------------------------
+Errors
 o sRGB warning - open png w/ photoshop > File > Save As > Untick ICC Profile: sRGB IEC61966-2.1 > overwrite file
+
+Editor
+o Player Spawns MUST be attached to corresponding SpawnTriggers
 o If a tiled template is not showing up in game, overwrite all default values even if desired == default
 
 
 
-
+TO DO LIST: ------------------------------------------------------------------------------------------------------------
 -- Camera --
 o zoom on custom point rather than only center of screen
 o zoom drops frame rate fix (not major issue. Zooms to acceptable amount without issue)
 o Fix focus on point
 o soft camera bounds
+
+
+-- Room --
+Respawn
+    o jank with timer on initial room spawn respawn
+    o Room transition fade effect
 
 
 -- Player --

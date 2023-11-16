@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="left-down" width="94" height="69" tilewidth="16" tileheight="16" infinite="0" nextlayerid="30" nextobjectid="45">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="left-down" width="94" height="69" tilewidth="16" tileheight="16" infinite="0" nextlayerid="31" nextobjectid="64">
  <editorsettings>
   <export target="test_csvs.csv" format="csv"/>
  </editorsettings>
@@ -387,90 +387,35 @@
   <group id="15" name="fg decoration"/>
  </group>
  <group id="17" name="systems">
-  <objectgroup id="7" name="transitions">
-   <object id="1" template="tiled_templates/Trigger.tx" name="room_1" class="Trigger" x="1499" y="1017" width="36.1902" height="80.993"/>
-   <object id="33" template="tiled_templates/Trigger.tx" name="room_2" class="Trigger" x="648" y="-20" width="92" height="28"/>
-   <object id="43" template="tiled_templates/Trigger.tx" name="room_3" class="Trigger" x="-22" y="123" width="28" height="74.873" visible="1"/>
-  </objectgroup>
-  <objectgroup id="8" name="spawns">
-   <object id="6" template="tiled_templates/Spawn.tx" name="room_0" class="Spawn" x="206" y="197">
+  <objectgroup id="7" name="triggers">
+   <object id="56" template="tiled_templates/Transition.tx" name="room_1" class="Transition" x="-23" y="135" width="28" height="54">
+    <properties>
+     <property name="spawn" type="object" value="57"/>
+    </properties>
+   </object>
+   <object id="57" template="tiled_templates/Spawn.tx" name="room_1" class="Spawn" x="8" y="143">
     <properties>
      <property name="player_facing" value="right"/>
     </properties>
    </object>
-   <object id="8" template="tiled_templates/Spawn.tx" name="room_1" class="Spawn" x="1440" y="1063.36">
+   <object id="58" template="tiled_templates/Checkpoint.tx" name="room_0" class="Checkpoint" x="243" y="203" width="107" height="27.4311">
+    <properties>
+     <property name="spawn" type="object" value="59"/>
+    </properties>
+   </object>
+   <object id="59" template="tiled_templates/Spawn.tx" name="room_0" class="Spawn" x="319" y="209">
+    <properties>
+     <property name="player_facing" value="right"/>
+    </properties>
+   </object>
+   <object id="61" template="tiled_templates/Checkpoint.tx" class="Checkpoint" x="138" y="238" width="40" height="76.4311">
+    <properties>
+     <property name="spawn" type="object" value="62"/>
+    </properties>
+   </object>
+   <object id="62" template="tiled_templates/Spawn.tx" class="Spawn" x="143" y="272">
     <properties>
      <property name="player_facing" value="left"/>
-    </properties>
-   </object>
-   <object id="14" template="tiled_templates/Spawn.tx" name="1" class="Spawn" x="335.916" y="200.154">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="16" template="tiled_templates/SpawnTrigger.tx" name="2" class="SpawnTrigger" x="182.103" y="959.299" width="68.897" height="53.4311">
-    <properties>
-     <property name="trigger_spawn" type="object" value="18"/>
-    </properties>
-   </object>
-   <object id="18" template="tiled_templates/Spawn.tx" name="2" class="Spawn" x="239.102" y="980.823">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="19" template="tiled_templates/SpawnTrigger.tx" name="3" class="SpawnTrigger" x="760.139" y="633.286" width="79.861" height="63.714">
-    <properties>
-     <property name="trigger_spawn" type="object" value="20"/>
-    </properties>
-   </object>
-   <object id="20" template="tiled_templates/Spawn.tx" name="3" class="Spawn" x="799.742" y="660.159">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="21" template="tiled_templates/SpawnTrigger.tx" name="4" class="SpawnTrigger" x="1194.87" y="695.383" width="43.13" height="60.617">
-    <properties>
-     <property name="trigger_spawn" type="object" value="22"/>
-    </properties>
-   </object>
-   <object id="22" template="tiled_templates/Spawn.tx" name="4" class="Spawn" x="1215.51" y="727.489">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="23" template="tiled_templates/SpawnTrigger.tx" name="5" class="SpawnTrigger" x="1155.93" y="374.453" width="63.07" height="53.4311">
-    <properties>
-     <property name="trigger_spawn" type="object" value="24"/>
-    </properties>
-   </object>
-   <object id="24" template="tiled_templates/Spawn.tx" name="5" class="Spawn" x="1183.5" y="392.377">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="25" template="tiled_templates/SpawnTrigger.tx" name="6" class="SpawnTrigger" x="677" y="439" width="52" height="65">
-    <properties>
-     <property name="trigger_spawn" type="object" value="26"/>
-    </properties>
-   </object>
-   <object id="26" template="tiled_templates/Spawn.tx" name="6" class="Spawn" x="680.098" y="455.999">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="27" template="tiled_templates/Spawn.tx" name="room_2" class="Spawn" x="687.66" y="16.5277">
-    <properties>
-     <property name="player_facing" value="right"/>
-    </properties>
-   </object>
-   <object id="34" template="tiled_templates/SpawnTrigger.tx" name="1" class="SpawnTrigger" x="249" y="175" width="116.897" height="53.4311">
-    <properties>
-     <property name="trigger_spawn" type="object" value="14"/>
-    </properties>
-   </object>
-   <object id="44" template="tiled_templates/Spawn.tx" name="room_3" class="Spawn" x="10" y="145">
-    <properties>
-     <property name="player_facing" value="right"/>
     </properties>
    </object>
   </objectgroup>

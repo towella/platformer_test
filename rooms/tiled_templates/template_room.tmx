@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="3">
- <tileset firstgid="1" source="../assets/level_assets/tiles/tile_set_template/tile_set_template.tsx"/>
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="6">
+ <tileset firstgid="1" source="../../assets/level_assets/tiles/tile_set_template/tile_set_template.tsx"/>
  <group id="2" name="visuals">
   <group id="5" name="bg decoration">
    <layer id="10" name="background tile 1" class="tile decoration" width="30" height="20">
@@ -79,11 +79,13 @@
   <group id="4" name="fg decoration"/>
  </group>
  <group id="3" name="systems">
-  <objectgroup id="9" name="transitions">
-   <object id="2" template="tiled_templates/Trigger.tx" name="room_0" class="Trigger" x="471" y="187" width="30" height="74.873"/>
-  </objectgroup>
-  <objectgroup id="8" name="spawns">
-   <object id="1" template="tiled_templates/Spawn.tx" name="room_0" class="Spawn" x="439" y="213">
+  <objectgroup id="9" name="triggers">
+   <object id="4" template="SpawnTrigger.tx" name="room_0" class="SpawnTrigger" x="473" y="199" width="21" height="53.4311">
+    <properties>
+     <property name="trigger_spawn" type="object" value="5"/>
+    </properties>
+   </object>
+   <object id="5" template="Spawn.tx" name="room_0" class="Spawn" x="456" y="210">
     <properties>
      <property name="player_facing" value="left"/>
     </properties>

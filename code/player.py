@@ -45,6 +45,9 @@ class Player(pygame.sprite.Sprite):
             "crouch": pygame.Rect(self.rect.midbottom[0], self.rect.midbottom[1], tile_size * 0.8, tile_size * 0.8)}
         self.hitbox = self.hitboxes["normal"]  # used for collisions and can be different to rect and image
 
+        self.interact = False
+        self.interact_pressed = False
+
         # -- PLAYER MOVEMENT --
         self.direction = pygame.math.Vector2(0, 0)  # allows cleaner movement by storing both x and y direction
         # collisions -- provides a buffer allowing late collision
@@ -189,6 +192,15 @@ class Player(pygame.sprite.Sprite):
     def get_input(self, dt, tiles):
         self.direction.x = 0
         keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_e] and not self.interact_pressed:
+            self.interact = True
+            self.interact_pressed = True
+        elif keys[pygame.K_e] and self.interact_pressed:
+            self.interact = False
+        else:
+            self.interact_pressed = False
+            self.interact = False
 
         #### horizontal movement ####
         # -- walk --
